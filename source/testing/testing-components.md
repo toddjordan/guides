@@ -7,7 +7,7 @@ whenever the value for its `name` property changes. The `style` attribute of the
 component is bound to its `style` property.
 
 > You can follow along by generating your own component with `ember generate
-> component pretty-color` --pod.
+> component pretty-color --pod`.
 
 ```app/components/pretty-color/component.js
 export default Ember.Component.extend({
@@ -19,7 +19,7 @@ export default Ember.Component.extend({
 });
 ```
 
-```app/templates/components/pretty-color/template.hbs
+```app/components/pretty-color/template.hbs
 Pretty Color: {{name}}
 ```
 
@@ -99,7 +99,7 @@ export default Ember.Component.extend({
 });
 ```
 
-```app/templates/components/magic-title/template.hbs
+```app/templates/magic-title/template.hbs
 <h2>{{title}}</h2>
 
 <button {{action "updateTitle"}}>
@@ -127,10 +127,10 @@ test('should update title on button click', function (assert) {
 
 ### Testing Actions
 
-Components starting in Ember 2 utilize closure actions, which allows the component to directly invoke functions provided by components higher up in then tree.
+Components starting in Ember 2 utilize closure actions, which allow the component to directly invoke functions provided by components higher up in then tree.
 
 For example, imagine you have a comment form component that invokes a
-`submit` action when the form is submitted, passing along the form's data:
+`submitComment` action when the form is submitted, passing along the form's data:
 
 > You can follow along by generating your own component with `ember generate
 > component comment-form --pod`.
@@ -147,7 +147,7 @@ export default Ember.Component.extend({
 });
 ```
 
-```app/templates/components/comment-form/template.hbs
+```app/components/comment-form/template.hbs
 <form {{action "submitComment" on="submit"}}>
   <label>Comment:</label>
   {{textarea value=comment}}
@@ -156,8 +156,8 @@ export default Ember.Component.extend({
 </form>
 ```
 
-Here's an example test that asserts that the specified `createComment` action
-is sent when the component's internal `submit` action is triggered by making use
+Here's an example test that asserts that the specified `externalAction` function
+is invoked when the component's internal `submitComment` action is triggered by making use
 of a test double (dummy function):
 
 ```tests/unit/components/comment-form/component-test.js
