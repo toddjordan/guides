@@ -7,9 +7,9 @@ whenever the value for its `name` property changes. The `style` attribute of the
 component is bound to its `style` property.
 
 > You can follow along by generating your own component with `ember generate
-> component pretty-color --pod`.
+> component pretty-color`.
 
-```app/components/pretty-color/component.js
+```app/components/pretty-color.js
 export default Ember.Component.extend({
   attributeBindings: ['style'],
 
@@ -19,14 +19,15 @@ export default Ember.Component.extend({
 });
 ```
 
-```app/components/pretty-color/template.hbs
+```app/templates/components/pretty-color.hbs
 Pretty Color: {{name}}
 ```
 
 The `moduleForComponent` helper will find the component by name (`pretty-color`)
-and its template (if available).
+and its template (if available).  Make sure to set `integration: true` to enable
+integration test capability.
 
-```tests/integration/components/pretty-color/component-test.js
+```tests/integration/components/pretty-color-test.js
 moduleForComponent('pretty-color', 'Integration | Component | pretty color', {
   integration: true
 });
@@ -39,7 +40,7 @@ the component in template syntax, as we would in our application.
 We can test that changing the component's `name` property updates the
 component's `style` attribute and is reflected in the  rendered HTML:
 
-```tests/integration/components/pretty-color/component-test.js
+```tests/integration/components/pretty-color-test.js
 test('should change colors', function (assert) {
   assert.expect(2);
 
@@ -59,7 +60,7 @@ test('should change colors', function (assert) {
 We might also test this component to ensure that the content of its template is
 being rendered properly:
 
-```tests/integration/components/pretty-color/component-test.js
+```tests/integration/components/pretty-color-test.js
 test('should be rendered with its color name', function (assert) {
   assert.expect(2);
 
@@ -85,9 +86,9 @@ Imagine you have the following component that changes its title when a button is
 clicked on:
 
 > You can follow along by generating your own component with `ember generate
-> component magic-title --pod`.
+> component magic-title`.
 
-```app/components/magic-title/component.js
+```app/components/magic-title.js
 export default Ember.Component.extend({
   title: 'Hello World',
 
@@ -99,7 +100,7 @@ export default Ember.Component.extend({
 });
 ```
 
-```app/templates/magic-title/template.hbs
+```app/templates/components/magic-title.hbs
 <h2>{{title}}</h2>
 
 <button {{action "updateTitle"}}>
@@ -110,7 +111,7 @@ export default Ember.Component.extend({
 jQuery triggers can be used to simulate user interaction and test that the title
 is updated when the button is clicked on:
 
-```tests/integration/components/magic-title/component-test.js
+```tests/integration/components/magic-title-test.js
 test('should update title on button click', function (assert) {
   assert.expect(2);
 
@@ -127,15 +128,16 @@ test('should update title on button click', function (assert) {
 
 ### Testing Actions
 
-Components starting in Ember 2 utilize closure actions, which allow the component to directly invoke functions provided by components higher up in then tree.
+Components starting in Ember 2 utilize closure actions. Closure actions allow components
+to directly invoke functions provided outer components.
 
 For example, imagine you have a comment form component that invokes a
 `submitComment` action when the form is submitted, passing along the form's data:
 
 > You can follow along by generating your own component with `ember generate
-> component comment-form --pod`.
+> component comment-form`.
 
-```app/components/comment-form/component.js
+```app/components/comment-form.js
 export default Ember.Component.extend({
   comment: '',
 
@@ -147,7 +149,7 @@ export default Ember.Component.extend({
 });
 ```
 
-```app/components/comment-form/template.hbs
+```app/templates/components/comment-form.hbs
 <form {{action "submitComment" on="submit"}}>
   <label>Comment:</label>
   {{textarea value=comment}}
@@ -160,7 +162,7 @@ Here's an example test that asserts that the specified `externalAction` function
 is invoked when the component's internal `submitComment` action is triggered by making use
 of a test double (dummy function):
 
-```tests/integration/components/comment-form/component-test.js
+```tests/integration/components/comment-form-test.js
 test('should trigger external action on form submit', function (assert) {
 
   //test double for the external action
@@ -176,4 +178,3 @@ test('should trigger external action on form submit', function (assert) {
   this.$('input').click();
 });
 ```
-[Unit Testing Basics]: ../unit-testing-basics
