@@ -39,7 +39,7 @@ the component in template syntax, as we would in our application.
 We can test that changing the component's `name` property updates the
 component's `style` attribute and is reflected in the  rendered HTML:
 
-```tests/unit/components/pretty-color-test.js
+```tests/integration/components/pretty-color/component-test.js
 test('should change colors', function (assert) {
   assert.expect(2);
 
@@ -59,7 +59,7 @@ test('should change colors', function (assert) {
 We might also test this component to ensure that the content of its template is
 being rendered properly:
 
-```tests/unit/components/pretty-color-test.js
+```tests/integration/components/pretty-color/component-test.js
 test('should be rendered with its color name', function (assert) {
   assert.expect(2);
 
@@ -110,7 +110,7 @@ export default Ember.Component.extend({
 jQuery triggers can be used to simulate user interaction and test that the title
 is updated when the button is clicked on:
 
-```tests/unit/components/magic-title-test.js
+```tests/integration/components/magic-title/component-test.js
 test('should update title on button click', function (assert) {
   assert.expect(2);
 
@@ -160,7 +160,7 @@ Here's an example test that asserts that the specified `externalAction` function
 is invoked when the component's internal `submitComment` action is triggered by making use
 of a test double (dummy function):
 
-```tests/unit/components/comment-form/component-test.js
+```tests/integration/components/comment-form/component-test.js
 test('should trigger external action on form submit', function (assert) {
 
   //test double for the external action
