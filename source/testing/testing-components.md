@@ -7,9 +7,9 @@ whenever the value for its `name` property changes. The `style` attribute of the
 component is bound to its `style` property.
 
 > You can follow along by generating your own component with `ember generate
-> component pretty-color --pod`.
+> component pretty-color`.
 
-```app/components/pretty-color/component.js
+```app/components/pretty-color.js
 export default Ember.Component.extend({
   attributeBindings: ['style'],
 
@@ -19,14 +19,15 @@ export default Ember.Component.extend({
 });
 ```
 
-```app/components/pretty-color/template.hbs
+```app/templates/components/pretty-color.hbs
 Pretty Color: {{name}}
 ```
 
 The `moduleForComponent` helper will find the component by name (`pretty-color`)
-and its template (if available).
+and its template (if available).  Make sure to set `integration: true` to enable
+integration test capability.
 
-```tests/integration/components/pretty-color/component-test.js
+```tests/integration/components/pretty-color-test.js
 moduleForComponent('pretty-color', 'Integration | Component | pretty color', {
   integration: true
 });
@@ -39,7 +40,7 @@ the component in template syntax, as we would in our application.
 We can test that changing the component's `name` property updates the
 component's `style` attribute and is reflected in the  rendered HTML:
 
-```tests/integration/components/pretty-color/component-test.js
+```tests/integration/components/pretty-color-test.js
 test('should change colors', function (assert) {
   assert.expect(2);
 
@@ -59,7 +60,7 @@ test('should change colors', function (assert) {
 We might also test this component to ensure that the content of its template is
 being rendered properly:
 
-```tests/integration/components/pretty-color/component-test.js
+```tests/integration/components/pretty-color-test.js
 test('should be rendered with its color name', function (assert) {
   assert.expect(2);
 
@@ -85,9 +86,9 @@ Imagine you have the following component that changes its title when a button is
 clicked on:
 
 > You can follow along by generating your own component with `ember generate
-> component magic-title --pod`.
+> component magic-title`.
 
-```app/components/magic-title/component.js
+```app/components/magic-title.js
 export default Ember.Component.extend({
   title: 'Hello World',
 
@@ -99,7 +100,7 @@ export default Ember.Component.extend({
 });
 ```
 
-```app/templates/magic-title/template.hbs
+```app/templates/components/magic-title.hbs
 <h2>{{title}}</h2>
 
 <button {{action "updateTitle"}}>
@@ -110,7 +111,7 @@ export default Ember.Component.extend({
 jQuery triggers can be used to simulate user interaction and test that the title
 is updated when the button is clicked on:
 
-```tests/integration/components/magic-title/component-test.js
+```tests/integration/components/magic-title-test.js
 test('should update title on button click', function (assert) {
   assert.expect(2);
 
@@ -127,15 +128,16 @@ test('should update title on button click', function (assert) {
 
 ### Testing Actions
 
-Components starting in Ember 2 utilize closure actions, which allow the component to directly invoke functions provided by components higher up in then tree.
+Components starting in Ember 2 utilize closure actions. Closure actions allow components
+to directly invoke functions provided outer components.
 
 For example, imagine you have a comment form component that invokes a
 `submitComment` action when the form is submitted, passing along the form's data:
 
 > You can follow along by generating your own component with `ember generate
-> component comment-form --pod`.
+> component comment-form`.
 
-```app/components/comment-form/component.js
+```app/components/comment-form.js
 export default Ember.Component.extend({
   comment: '',
 
@@ -147,7 +149,7 @@ export default Ember.Component.extend({
 });
 ```
 
-```app/components/comment-form/template.hbs
+```app/templates/components/comment-form.hbs
 <form {{action "submitComment" on="submit"}}>
   <label>Comment:</label>
   {{textarea value=comment}}
@@ -160,7 +162,7 @@ Here's an example test that asserts that the specified `externalAction` function
 is invoked when the component's internal `submitComment` action is triggered by making use
 of a test double (dummy function):
 
-```tests/integration/components/comment-form/component-test.js
+```tests/integration/components/comment-form-test.js
 test('should trigger external action on form submit', function (assert) {
 
   //test double for the external action
@@ -176,4 +178,100 @@ test('should trigger external action on form submit', function (assert) {
   this.$('input').click();
 });
 ```
-[Unit Testing Basics]: ../unit-testing-basics
+
+### Stubbing Services
+
+In cases where components have dependencies on Ember services, its possible to stub these
+dependencies for integration tests. Stub Ember services by using the container
+object to register your stub service in place of the default.
+
+Imagine you have the following component that uses a location service to display the city
+and country of your current location:
+
+> You can follow along by generating your own component with `ember generate
+> component location-indicator`.
+
+```app/components/location-indicator.js
+export default Ember.Component.extend({
+  locationService: Ember.inject.service(),
+
+  //service provides a location object that has longitude and lattitude coordinates
+  currentLocation: Ember.computed('locationService.currentLocation'),
+
+  //when the coordinates change, call the location service to evaluate what the city and country would be
+  city: Ember.computed('locationService.currentLocation', function () {
+    return this.get('locationService').getCurrentCity();
+  }),
+
+  country: Ember.computed('locationService.currentLocation', function () {
+    return this.get('locationService').getCurrentCountry();
+  })
+});
+```
+
+```app/templates/components/location-indicator.hbs
+You currently are located in {{city}}, {{country}}
+```
+To stub the location service in your test, create a local stub object that extends
+`Ember.Service`, and register the stub as the service your tests need in the
+beforeEach function.  In this case we initially force location to New York.
+
+
+```tests/integration/components/location-indicator-test.js
+import { moduleForComponent, test } from 'ember-qunit';
+import hbs from 'htmlbars-inline-precompile';
+import Ember from 'ember';
+
+//Stub location service
+let locationStub = Ember.Service.extend({
+  city: 'New York',
+  country: 'USA',
+  currentLocation: {
+    x: 1234,
+    y: 5678
+  }
+  getCurrentCity() {
+    return this.get('city');
+  },
+  getCurrentCountry() {
+    return this.get('country');
+  }
+});
+
+moduleForComponent('location-indicator', 'Integration | Component | location indicator', {
+  integration: true,
+
+  beforeEach: function () {
+    this.container.register('service:location-service', locationStub);
+  }
+});
+```
+
+Once the stub service is registered the test simply needs to check that the stub data that
+is being returned from the service is reflected in the component output.
+
+```tests/integration/components/location-indicator-test.js
+test('should reveal current location', function(assert) {
+  this.render(hbs`{{location-indicator}}`);
+  assert.equal(this.$().text().trim(), 'You currently are located in New York, USA');
+});
+```
+
+Since services default to being singletons, we can get a reference to the service within our test
+and modify values on it so that we can assert on how we expect our component to react. In next the
+example, we'll add another test that validates that the display changes when we modify the values
+on the service.
+
+```tests/integration/components/location-indicator-test.js
+test('should change displayed location when current location changes', function (assert) {
+  this.render(hbs`{{location-indicator}}`);
+  assert.equal(this.$().text().trim(), 'You currently are located in New York, USA', 'origin location should display');
+  let locationService = this.container.lookup('service:location-service');
+  Ember.run(() => {
+    locationService.set('city', 'Beijing');
+    locationService.set('country', 'China');
+    locationService.set('currentLocation', { x: 11111, y: 222222 });
+  });
+  assert.equal(this.$().text().trim(), 'You currently are located in Beijing, China', 'location display should change');
+});
+```
