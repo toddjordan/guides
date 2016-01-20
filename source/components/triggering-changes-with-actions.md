@@ -378,3 +378,56 @@ export default Ember.Component.extend({
   }
 });
 ```
+
+## Calling Actions Across Component Layers
+
+When your components go multiple layers deep, its not uncommon to need to handle an action several layers up the tree.
+Using action helpers, its possible to make top level actions available at the bottom layers of your component tree
+without adding JavaScript code to the components in between.
+
+For example, we want to take account deletion out of the `user-profile` component and handle deletion in its parent.
+In our template in `user-profile.hbs`, we can change our action to call `deleteCurrentUser`,
+which will be defined on `system-preferences-editor`.
+
+```app/templates/components/user-profile.hbs
+{{button-with-confirmation onConfirm=(action deleteCurrentUser)
+  text="Click OK to delete your account."}}
+```
+
+Note that `deleteCurrentUser` is not in quotes as was the case [previously](#toc_passing-the-action-to-the-component)
+when the action was local to `user-profile`.
+This is because when you pass an action helper a string, it will attempt to invoke that function from the component's
+local `actions` object.
+
+When you pass an action helper an function reference, as in this case, it will invoke the function from the component's
+context.   Here our `system-preferences-editor` template passes its `deleteUser` action into the `user-profile`
+component's `deleteCurrentUser` property.
+
+```app/templates/components/system-preferences-editor.hbs
+{{user-profile deleteCurrentUser=(action 'deleteUser' login.currentUser.id)}}
+```
+
+Now when you confirm deletion, the action goes straight to the `system-preferences-editor` to handle.
+
+```app/components/system-preferences-editor.js
+import Ember from 'ember';
+
+export default Ember.Component.extend({
+  login: Ember.inject.service(),
+  actions: {
+    deleteUser(idStr) {
+      return this.get('login').deleteUserAccount(idStr);
+    }
+  }
+});
+```
+
+The deletion logic now resides in `system-preferences-editor`, while `user-profile` is left blank.
+
+```app/components/user-profile.js
+import Ember from 'ember';
+
+export default Ember.Component.extend({
+
+});
+```
