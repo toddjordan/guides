@@ -225,9 +225,12 @@ export default Ember.Component.extend({
 
 ## Passing Arguments
 
-Actions passed to a component may be invoked with arguments.
-In the `send-message` component, we want to provide a message type to send to the action.
-
+Sometimes the parent component invoking an action has some context needed for the action that the child component
+doesn't.
+For these cases, actions passed to a component via the action helper may be invoked with arguments.
+For example, we'll update the `send-message` action to take a message type in addition to the message itself.
+Since the `button-with-confirmation` component doesn't know or care about what type of message its collecting, we want
+to provide a message type from `send-message` when we define the action.
 ```app/templates/components/send-message.hbs
 {{button-with-confirmation text="Click to send your message." onConfirm=(action "sendMessage" "info")}}
 ```
@@ -238,9 +241,8 @@ The action helper will add the arguments provided in the template to the call.
 
 Action arguments curry, meaning that you can provide partial arguments to the action helper and provide the rest of the
 arguments when you call the function within the component javascript file.
-For example, our `button-with-confirmation` component will now
-[yield](https://guides.emberjs.com/v2.2.0/components/wrapping-content-in-a-component/) the content of the confirmation
-dialog to collect extra information to be sent along with the `onConfirm` action:
+For example, our `button-with-confirmation` component will now [yield](../wrapping-content-in-a-component/) the content
+of the confirmation dialog to collect extra information to be sent along with the `onConfirm` action:
 
 ```app/templates/components/button-with-confirmation.hbs
 <button {{action "launchConfirmDialog"}}>{{text}}</button>
@@ -341,8 +343,9 @@ export default Ember.Service.extend({
 
 ## Destructuring Objects Passed as Action Arguments
 
-A component will often not know what information a parent needs to process an action, and just pass all the information
-it has.  For example, our `user-profile` component is going to notify its parent, `system-preferences-editor`, that a
+A component will often not know what information a parent needs to process an action, and will just pass all the
+information it has.
+For example, our `user-profile` component is going to notify its parent, `system-preferences-editor`, that a
 user's account was deleted, and passes along with it the full user profile object.
 
 
@@ -359,7 +362,7 @@ export default Ember.Component.extend({
 });
 ```
 
-All our `system-preferences-editor` component really needs to process a user deletion is their account ID.
+All our `system-preferences-editor` component really needs to process a user deletion is an account ID.
 For this case, the action helper provides the `value` attribute to allow a parent component to dig into the passed
 object to pull out only what it needs.
 
