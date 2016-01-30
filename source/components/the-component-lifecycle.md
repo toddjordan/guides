@@ -10,7 +10,7 @@ Listed below are the component lifecycle hooks in order of execution according t
 
 ### On Initial Render
 
-1. `didInitAttrs`
+1. `init`
 2. [`didReceiveAttrs`](#toc_formatting-component-attributes-with-code-didreceiveattrs-code)
 3. `willRender`
 4. [`didInsertElement`](#toc_integrating-with-third-party-libraries-with-code-didinsertelement-code)
@@ -86,7 +86,7 @@ export default Ember.Component.extend({
 
 ### Formatting Component Attributes with `didReceiveAttrs`
 
-`didReceiveAttrs` runs after `didInitAttrs`, and it also runs on subsequent re-renders, which is useful for logic that is the same on all renders.
+`didReceiveAttrs` runs after `init`, and it also runs on subsequent re-renders, which is useful for logic that is the same on all renders.
 It does not run when the re-rendered has been initiated internally.
 
 Since the `didReceiveAttrs` hook is called every time a component's attributes are updated whether on render or re-render,
@@ -197,7 +197,7 @@ Since scrolling to a specific spot is based on positions within the DOM, we need
 We can first render this list, and then set the scroll.
 
 The component below takes a list of items and displays them on the screen.
-Additionally, it takes an object representing the which item is selected and will select and set the scroll top to that item.
+Additionally, it takes an object representing which item is selected and will select and set the scroll top to that item.
 
 ```hbs
 {{selected-item-list items=items selectedItem=selection}}
