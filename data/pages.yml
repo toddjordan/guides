@@ -32,6 +32,8 @@
       url: "hbs-helper"
     - title: "An Autocomplete Component"
       url: "autocomplete-component"
+    - title: "Nested Routes"
+      url: "nested-routes"
     - title: "Deploying"
       url: "deploying"
 
