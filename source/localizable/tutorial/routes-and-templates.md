@@ -1,14 +1,12 @@
-Ember uses routes to define logical, addressable pages within our application.
-
 In Super Rentals we want to arrive at a home page which shows a list of rentals.
 From there, we should be able to navigate to an about page and a contact page.
 
-Let's start by building our "about" page.
-Remember, when the URL path `/about` is loaded,
-the router will map the URL to the route handler of the same name, _about.js_.
-The route handler then loads a template.
+Ember provides a [robust routing mechanism](../../routing/) to define logical, addressable pages within our application.
 
 ## An About Route
+
+Let's start by building our "about" page.
+To create a new, URL addressable page in the application, we need to generate a route using Ember CLI.
 
 If we run `ember help generate`, we can see a variety of tools that come with Ember for automatically generating files for various Ember resources.
 Let's use the route generator to start our `about` route.
@@ -35,12 +33,16 @@ installing route-test
   create tests/unit/routes/about-test.js
 ```
 
-Three new files are created: one for the route handler, one for the template the route handler will render,
-and a test file.
-The fourth file that is touched is the router.
+A route is composed of the following parts:
 
-When we open the router, we can see that the generator has mapped a new _about_ route for us.
-This route will load the `about` route handler.
+1. An entry in `/app/router.js`, mapping the route name to a specific URI. _`(app/router.js)`_
+2. A route handler JavaScript file, instructing what behavior should be executed when the route is loaded. _`(app/routes/about.js)`_
+3. A route template, describing the page represented by the route. _`(app/templates/about.hbs)`_
+
+When we open `/app/router.js`, we can see that there is a new line of code for our route, calling `this.route('about')` in its `map` function.
+Calling the function `this.route(_routeName_)`, tells the Ember router to load the specified route handler when the user navigates to the URI with the same name.
+In this case when the user navigates to `/about`, the route handler represented by `/app/routes/about.js` will be used.
+See the guide for [defining routes](../../routing/defining-your-routes/) for more details.
 
 ```app/router.js
 import Ember from 'ember';
@@ -175,7 +177,7 @@ To make this happen we'll add a third route and call it `rentals`.
 ember g route rentals
 ```
 
-Let's update the newly generated `rentals.hbs` with some basic markup to seed our rentals list page.
+Let's update the newly generated `app/templates/rentals.hbs` with some basic markup to seed our rentals list page.
 We'll come back to this page later to add in the actual rental properties.
 
 ```app/templates/rentals.hbs
