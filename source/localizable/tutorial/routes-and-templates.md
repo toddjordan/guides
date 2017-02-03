@@ -40,8 +40,10 @@ A route is composed of the following parts:
 3. A route template, describing the page represented by the route. _`(app/templates/about.hbs)`_
 
 Opening `/app/router.js` shows that there is a new line of code for the _about_ route, calling `this.route('about')` in the `map` function.
-Calling the function `this.route(routeName)`, tells the Ember router to load the specified route handler when the user navigates to the URI with the same name.
-In this case when the user navigates to `/about`, the route handler represented by `/app/routes/about.js` will be used.
+
+Calling the function `this.route(routeName)`, tells the Ember router to run the specified route handler when the user navigates to the URI with the same name.
+In this case when the user navigates to `/about`, the route handler represented by `/app/routes/about.js` will be run.
+
 See the guide for [defining routes](../../routing/defining-your-routes/) for more details.
 
 ```app/router.js
@@ -61,7 +63,8 @@ export default Router;
 ```
 
 By default, the `about` route handler loads the `about.hbs` template.
-This means we don't actually have to change anything in the new `app/routes/about.js` file for the `about.hbs` template to render as we want.
+We don't actually have to change anything in the new `app/routes/about.js` route handler file,
+as all we are doing is displaying static content in our `about.hbs` template.
 
 With all of the routing in place from the generator, we can get right to work on coding our template.
 For our `about` page, we'll add some HTML that has a bit of information about the site:
@@ -148,7 +151,7 @@ When we look at our about page at [`http://localhost:4200/about`](http://localho
 
 Now, we'll add a link to our contact page so we can navigate back and forth between `about` and `contact`.
 
-```app/templates/contact.hbs
+```app/templates/contact.hbs{+15,+16,+17}
 <div class="jumbo">
   <div class="right tomster"></div>
   <h2>Contact Us</h2>
@@ -215,38 +218,26 @@ installing route-test
 
 Unlike the other route handlers we've made so far, the `index` route is special:
 it does NOT require an entry in the router's mapping.
-We'll learn more about why the entry isn't required when we look at [nested routes](../subroutes) in Ember.
+We'll learn more about why the entry isn't required later on when we look at [nested routes](../subroutes) in Ember.
 
-Let's start by implementing the unit test for our new index route.
+All we want to do when a user visits the root (`/`) URL is transition to `/rentals`.
+To do this we will add code to our index route handler by implementing a route lifecycle hook,
+called `beforeModel`.
 
-Since all we want to do is transition people who visit `/` to `/rentals`,
-our unit test will make sure that the route's [`replaceWith`](http://emberjs.com/api/classes/Ember.Route.html#method_replaceWith) method is called with the desired route.
-`replaceWith` is similar to the route's [`transitionTo`](../../routing/redirection/#toc_transitioning-before-the-model-is-known) function; the difference being that `replaceWith` will replace the current URL in the browser's history, while `transitionTo` will add to the history.
+Each route handler has a set of "lifecycle hooks", which are functions that are invoked at specific times during the loading of a page.
+The [`beforeModel`](http://emberjs.com/api/classes/Ember.Route.html#method_beforeModel)
+hook gets executed before the data gets fetched from the model hook, and before the page is rendered.
+See [the next section](../model-hook) for an explanation of the model hook.
+
+In our index route handler, we'll call the [`replaceWith`](http://emberjs.com/api/classes/Ember.Route.html#method_replaceWith) function.
+The `replaceWith` function is similar to the route's `transitionTo` function,
+the difference being that `replaceWith` will replace the current URL in the browser's history,
+while `transitionTo` will add to the history.
 Since we want our `rentals` route to serve as our home page, we will use the `replaceWith` function.
 
-In our test, we'll make sure that our index route is redirecting by stubbing the `replaceWith` method for the route and asserting that the `rentals` route is passed when called.
+In our index route handler, we add the `replaceWith` invocation to `beforeModel`.
 
-A `stub` is simply a fake function that we provide to an object we are testing, that takes the place of one that is already there.
-In this case we are stubbing the `replaceWith` function to assert that it is called with what we expect.
-
-```tests/unit/routes/index-test.js
-import { moduleFor, test } from 'ember-qunit';
-
-moduleFor('route:index', 'Unit | Route | index');
-
-test('should transition to rentals route', function(assert) {
-  let route = this.subject({
-    replaceWith(routeName) {
-      assert.equal(routeName, 'rentals', 'replace with route name rentals');
-    }
-  });
-  route.beforeModel();
-});
-```
-
-In our index route, we simply add the actual `replaceWith` invocation.
-
-```app/routes/index.js
+```app/routes/index.js{+4,+5,+6}
 import Ember from 'ember';
 
 export default Ember.Route.extend({
@@ -256,7 +247,7 @@ export default Ember.Route.extend({
 });
 ```
 
-Now visiting the root route `/` will result in the `/rentals` URL loading.
+Now visiting the root URL `/` will result in the `/rentals` URL loading.
 
 ## Adding a Banner with Navigation
 
@@ -291,8 +282,87 @@ Let's open the application template at `/app/templates/application.hbs`, and add
 ```
 
 Notice the inclusion of an `{{outlet}}` within the body `div` element.
-The [`{{outlet}}`](http://emberjs.com/api/classes/Ember.Templates.helpers.html#method_outlet) in this case is a placeholder for the content rendered by the current route, such as _about_, or _contact_.
+The [`{{outlet}}`](http://emberjs.com/api/classes/Ember.Templates.helpers.html#method_outlet)
+in this case is a placeholder for the content rendered by the current route, such as _about_, or _contact_.
 
-Now that we've added routes and linkages between them, the three acceptance tests we created for navigating to our routes should now pass.
+At this point you should have the ability to navigate between your _about_, _contact_, and _rentals_ pages.
 
-![passing navigation tests](../../images/routes-and-templates/passing-navigation-tests.png)
+From here you may move on to the [next page](../model-hook/), or walk through how to test the new functionality you've added.
+
+## Implementing Acceptance Tests
+
+Now that we have created routes to load various pages of our application, lets walk through how to create tests to exercise them.
+
+As we learned in [Planning the Application](../acceptance-test/),
+an acceptance test in Ember is an automated test that starts up the application and interacts with it in a way similar to what a user would do.
+
+If you open the acceptance test we created in that section, you'll see our list of goals represented as tests,
+including the ability to navigate to an about page and a contact page.
+
+Ember provides a variety of default test helpers for acceptance tests that can be used to perform common tasks,
+such as visiting routes, filling in fields, clicking on elements, and waiting for pages to render.
+
+A few helpers are at play in the tests we are about to write:
+
+* The [`visit`](http://emberjs.com/api/classes/Ember.Test.html#method_visit) helper loads the route specified for the given URL.
+* The [`click`](http://emberjs.com/api/classes/Ember.Test.html#method_click) helper simulates a user clicking on specific parts of the screen.
+* The [`andThen`](../../testing/acceptance/#toc_wait-helpers)
+  helper waits for all previously called test helpers to complete before executing the function you provide it.
+  In this case, we need to wait for the page to load after `click`, so that we can assert that the new page is loaded.
+* [`currentURL`](http://emberjs.com/api/classes/Ember.Test.html#method_currentURL) returns the URL that test application is currently visiting.
+
+First, we want to test the index route we created, that redirects traffic directed at the root URL `/`, to `/rentals`.
+In this test case we'll simply visit the root URL and assert that the current URL is `/rentals` once the page is loaded.
+
+```/tests/acceptance/list-rentals-test.js
+test('should show rentals as the home page', function (assert) {
+  visit('/');
+  andThen(function() {
+    assert.equal(currentURL(), '/rentals', 'should redirect automatically');
+  });
+});
+```
+
+Now run the tests by typing `ember test --server` in the command line (or `ember t -s` for short).
+
+Instead of 7 failures there should now be 6 (5 acceptance failures and 1 jshint).
+Note that you can narrow down the tests being run to just our acceptance test by selecting the entry called,
+"Acceptance | list rentals" in the drop down input labeled "Module" on the test UI.
+
+Also remember to toggle "Hide passed tests" to show your passing test case along with the failures that you haven't yet implemented.
+
+Next, to test the about and contact pages,
+we will add code that simulates a user clicking on these links from the home page and verifies that the new page is loaded.
+
+In each test, visit the app at its root, click on the link based on its name, and then assert that the new URL is loaded.
+
+```/tests/acceptance/list-rentals-test.js
+test('should link to information about the company.', function (assert) {
+  visit('/');
+  click('a:contains("About")');
+  andThen(function() {
+    assert.equal(currentURL(), '/about', 'should navigate to about');
+  });
+});
+
+test('should link to contact information', function (assert) {
+  visit('/');
+  click('a:contains("Contact")');
+  andThen(function() {
+    assert.equal(currentURL(), '/contact', 'should navigate to contact');
+  });
+});
+```
+
+If your ember test process is still running it should update to reflect your newly passed tests.
+
+Note that we can call the two helpers, `visit` and `click` back to back without the need to wait for the page to load after visit.
+This is because `visit` and `click` are [asynchronous test helpers](../../testing/acceptance/#toc_asynchronous-helpers).
+Asynchronous test helpers are made to wait until other asynchronous test helpers are complete before executing.
+
+The three acceptance tests we created for navigating to our routes should now pass.
+In the screen recording below, we run the tests, deselect "Hide passed tests", and set the module to our acceptance test,
+revealing the 3 tests we got passing.
+
+![passing navigation tests](../../images/routes-and-templates/ember-route-tests.gif)
+

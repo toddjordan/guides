@@ -9,13 +9,25 @@ Let's think through what we want to do on the home page of our Super Rentals app
 
 We want our application to:
 
-* List available rentals.
+* Show rentals as the home page
 * Link to information about the company.
 * Link to contact information.
+* List the available rentals.
 * Filter the list of rentals by city.
+* Show more details for a selected rental
+
+For the remainder of this page, we'll give you an introduction to testing in Ember and get you set up to add tests as we implement pieces of our app.
+In subsequent tutorial pages, the final sections of each page will be dedicated to adding a test to the feature you just implemented.
+These sections aren't required for a working application and you may move on with the tutorial without implementing them.
+
+You may move on to the [next page](../routes-and-templates/), or continue reading about Ember testing.
+
+### Testing Our Application As We Go
 
 We can represent these goals as [Ember acceptance tests](../../testing/acceptance/).
-Acceptance tests interact with our app like an actual person would, but can be automated, ensuring that our app doesn't break in the future.
+Acceptance tests interact with our app like an actual person would, but are automated, ensuring that our app doesn't break in the future.
+
+When you create a new Ember Project using Ember CLI, it uses the [`QUnit`](https://qunitjs.com/) JavaScript test framework to define and run tests.
 
 We'll start by using Ember CLI to generate a new acceptance test:
 
@@ -23,7 +35,7 @@ We'll start by using Ember CLI to generate a new acceptance test:
 ember g acceptance-test list-rentals
 ```
 
-The command will generate the following output, showing that it created a single file called `list-rentals-test`.
+The command will generate the following output, showing that it created a single file called `tests/acceptance/list-rentals-test.js`.
 
 ```shell
 installing acceptance-test
@@ -32,7 +44,13 @@ installing acceptance-test
 
 Opening the new test file will reveal some boilerplate code that will try to go to the `list-rentals` route and verify that the route is loaded.
 This boilerplate code is there to guide you into your first working acceptance test.
-Since we are testing our index route, which is `/`, we'll replace occurrences of `/list-rentals` with `/`:
+
+Since we haven't added any functionality to our application yet, we'll use this first test to get bootstrapped on running
+tests in our app.
+
+To do this, replace occurrences of `/list-rentals` in the generated test with `/`.
+The test will simply start our app at the base url, `http://localhost:4200/`,
+and then do a basic check that the page finished loading and the the url is what we expect it to be.
 
 ```/tests/acceptance/list-rentals-test.js{-6,+7,-8,+9,-12,+13}
 import { test } from 'qunit';
@@ -52,9 +70,33 @@ test('visiting /', function(assert) {
 });
 ```
 
-Now run your test suite with `ember test --server` from the command line in a new window and you'll see one successful acceptance test (along with a bunch of JSHint tests).
+A few of things to note in this simple test:
 
-As mentioned before, this test boilerplate is just for checking the environment, so now let's replace this test with our list of goals.
+* Acceptance tests are initialized by calling the function `moduleForAcceptance`.
+  This function ensures that your ember application is started and shut down between each test.
+* We define each test as a function and pass into the qunit `test` function.
+* QUnit passes in an object called an [`assert`](https://api.qunitjs.com/category/assert/) to each test function.
+  An `assert` has functions, such as `equal()`, that allow your test to check for conditions within the test environment.
+  A test must have one passing assert to be successful.
+* Ember acceptance tests use a set of implicit test helper functions,
+  such as `visit`, `andThen`, and `currentURL` shown above.
+  We'll dive more into these functions later in the tutorial.
+
+
+Now run your test suite with the CLI command, `ember test --server`.
+
+By default, when you run `ember test --server`, Ember CLI runs the [Testem test runner](https://github.com/testem/testem),
+which in turn runs the qunit test framework on Chrome and [PhantomJS](http://phantomjs.org/) out of the box.
+
+The launched Chrome web browser shows 10 successful tests.
+Ember generates tests that lint each file you create using [JSHint](http://jshint.com/).
+If you toggle the box labeled "Hide passed tests", you should see your successful acceptance test, along with 9 passing JSHint tests.
+
+![Initial Tests Screenshot](../../images/acceptance-test/initial-tests.png)
+
+### Adding Your Application Goals as Acceptance Tests
+
+As mentioned before, this test boilerplate is just for checking the environment, so now let's replace this test with our list of goals we described at the beginning of this section.
 
 ```/tests/acceptance/list-rentals-test.js
 import { test } from 'qunit';
@@ -62,10 +104,7 @@ import moduleForAcceptance from 'super-rentals/tests/helpers/module-for-acceptan
 
 moduleForAcceptance('Acceptance | list-rentals');
 
-test('should redirect to rentals route', function (assert) {
-});
-
-test('should list available rentals.', function (assert) {
+test('should show rentals as the home page', function (assert) {
 });
 
 test('should link to information about the company.', function (assert) {
@@ -74,111 +113,20 @@ test('should link to information about the company.', function (assert) {
 test('should link to contact information.', function (assert) {
 });
 
-test('should filter the list of rentals by city.', function (assert) {
-});
-
-test('should show details for a specific rental', function (assert) {
-});
-```
-
-Running `ember test --server` will show a total of 6 failed tests.  Each will fail if we don't test for anything
-(known as an `assertion`).
-Since we have an idea of what we want our application to look like, we can also add some details to the tests.
-
-Ember provides test helpers that we can use to perform common tasks in acceptance
-tests, such as visiting routes, filling in fields, clicking on elements, and
-waiting for pages to render.
-
-We want the main focus of our site to be selecting rentals, so we plan to redirect traffic going to the root URL `/`, to our `rentals` route.
-We can create a simple test using our test helpers to verify this:
-
-```/tests/acceptance/list-rentals-test.js
-test('should redirect to rentals route', function (assert) {
-  visit('/');
-  andThen(function() {
-    assert.equal(currentURL(), '/rentals', 'should redirect automatically');
-  });
-});
-```
-A few helpers are in play in this test:
-
-* The [`visit`](http://emberjs.com/api/classes/Ember.Test.html#method_visit) helper loads the route specified for the given URL.
-* The [`andThen`](../../testing/acceptance/#toc_wait-helpers) helper waits for all previously called test helpers to complete before executing the function you provide it.
-In this case, we need to wait for the page to load after `visit`, so that we can assert that the listings are displayed.
-* [`currentURL`](http://emberjs.com/api/classes/Ember.Test.html#method_currentURL) returns the URL that test application is currently visiting.
-
-To check that rentals are listed, we'll first visit the index route and check that the results show 3 listings:
-
-```/tests/acceptance/list-rentals-test.js
 test('should list available rentals.', function (assert) {
-  visit('/');
-  andThen(function() {
-    assert.equal(find('.listing').length, 3, 'should see 3 listings');
-  });
-});
-```
-The test assumes that each rental element will have a CSS class called `listing`.
-
-For the next two tests, we want to verify that clicking the about and contact page links successfully load the proper URLs.
-We'll use the [`click`](http://emberjs.com/api/classes/Ember.Test.html#method_click) helper to simulate a user clicking these links.
-After the new screen loads, we just verify that the new URL matches our expectation using the [`currentURL`](http://emberjs.com/api/classes/Ember.Test.html#method_currentURL) helper.
-
-```/tests/acceptance/list-rentals-test.js
-test('should link to information about the company.', function (assert) {
-  visit('/');
-  click('a:contains("About")');
-  andThen(function() {
-    assert.equal(currentURL(), '/about', 'should navigate to about');
-  });
 });
 
-test('should link to contact information', function (assert) {
-  visit('/');
-  click('a:contains("Contact")');
-  andThen(function() {
-    assert.equal(currentURL(), '/contact', 'should navigate to contact');
-  });
-});
-```
-Note that we can call two [asynchronous test helpers](../../testing/acceptance/#toc_asynchronous-helpers) in a row without needing to use `andThen` or a promise.
-This is because each asynchronous test helper is made to wait until other test helpers are complete.
-
-After testing URLs, we'll drill down on our main rental page to test that we can filter the list down according to a city search criteria.
-We anticipate having an input field in a container with a class of `list-filter`.
-We will fill out "Seattle" as the search criteria in that field and send a key up event to trigger our filtering action.
-Since we control our data, we know that there is only one rental with a city of "Seattle", so we assert that the number of listings is one and that its location is "Seattle".
-
-```/tests/acceptance/list-rentals-test.js
 test('should filter the list of rentals by city.', function (assert) {
-  visit('/');
-  fillIn('.list-filter input', 'seattle');
-  keyEvent('.list-filter input', 'keyup', 69);
-  andThen(function() {
-    assert.equal(find('.listing').length, 1, 'should show 1 listing');
-    assert.equal(find('.listing .location:contains("Seattle")').length, 1, 'should contain 1 listing with location Seattle');
-  });
+});
+
+test('should show details for a selected rental', function (assert) {
 });
 ```
 
-Finally, we want to verify that we can click on a specific rental and load a detailed view to the page.
-We'll click on the title and validate that an expanded description of the rental is shown.
-
-```/tests/acceptance/list-rentals-test.js
-test('should show details for a specific rental', function (assert) {
-  visit('/rentals');
-  click('a:contains("Grand Old Mansion")');
-  andThen(function() {
-    assert.equal(currentURL(), '/rentals/grand-old-mansion', 'should navigate to show route');
-    assert.equal(find('.show-listing h2').text(), "Grand Old Mansion", 'should list rental title');
-    assert.equal(find('.description').length, 1, 'should list a description of the property');
-  });
-});
-```
-
-Of course because we have not implemented this functionality yet, our tests will all fail.
-So, your test output should now show all failed tests when running `ember test --server`, which gives us a todo list for the rest of the tutorial.
-
-![failing tests](../../images/acceptance-test/failed-acceptance-tests.png)
+Running `ember test --server` will show a total of 7 failed tests out of 15.
+Each of the 6 tests defined above will fail, plus you'll notice one JSHint failure saying, `assert is defined but never used`.
+The tests we defined fail because a QUnit test fails if it is empty.
+Tests require a check for a specific condition (known as an `assert`).
 
 As we walk through the tutorial, we'll use our acceptance tests as a checklist of functionality.
 When all are green, we've accomplished our high level goals!

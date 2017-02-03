@@ -57,8 +57,8 @@ project happens in this folder.
 **bower.json**: Bower is a dependency management tool.
 It can be used to manage front-end plugins and component dependencies
 (HTML, CSS, JavaScript, etc).  All Bower components are installed in the
-`bower_components` directory. If we add front-end dependencies, such as 
-Bootstrap, we will see them listed here, and added to the 
+`bower_components` directory. If we add front-end dependencies, such as
+Bootstrap, we will see them listed here, and added to the
 `bower_components` directory.
 
 **config**: The config directory contains the `environment.js` where you can
@@ -106,9 +106,9 @@ code.
 For example, the line `import Ember from 'ember';` gives us access to the actual
 Ember.js library as the variable `Ember`. And the `import config from
 './config/environment';` line gives us access to our app's configuration data
-as the variable `config`. `const` is a way to declare a read-only variable, 
+as the variable `config`. `const` is a way to declare a read-only variable,
 as to make sure it is not accidentally reassigned elsewhere. At the end of the file,
-`export default Router;` makes the `Router` variable defined in this file available 
+`export default Router;` makes the `Router` variable defined in this file available
 to other parts of the app.
 
 
@@ -131,3 +131,18 @@ If we navigate to [`http://localhost:4200`](http://localhost:4200), we'll see th
 Once we add our own `app/templates/application.hbs` file, the welcome screen will be replaced with our own content.
 
 ![default welcome screen](../../images/ember-cli/default-welcome-page.png)
+
+The first thing we want to do in our new project is to remove the welcome screen.
+We do this by simply opening up the application template file located at `app/templates/application.hbs`.
+
+Once open, remove the component labeled `{{welcome-page}}`.
+The application should now be a completely blank canvas to build our application on.
+
+```app/templates/application.hbs{-1,-2,-3}
+{{!-- The following component displays Ember's default welcome message. --}}
+{{welcome-page}}
+{{!-- Feel free to remove this! --}}
+
+{{outlet}}
+
+```
