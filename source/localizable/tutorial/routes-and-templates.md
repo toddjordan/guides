@@ -247,7 +247,7 @@ export default Ember.Route.extend({
 });
 ```
 
-Now visiting the root URL `/` will result in the `/rentals` URL loading.
+Now visiting the root route at `/` will result in the `/rentals` URL loading.
 
 ## Adding a Banner with Navigation
 
@@ -322,6 +322,13 @@ test('should show rentals as the home page', function (assert) {
   });
 });
 ```
+
+[`assert.equal()`](https://api.qunitjs.com/equal/) is an assertion function.
+An assertion checks for a certain condition, and fails the test if the condition is not met.
+The `assert.equal()` function takes three arguments.
+The first two can be any expression, but for acceptance tests they are usually a test helper followed by the expected result.
+Calls to `assert.equal()` fail its test if the values of the two expressions are not equal.
+The third argument is an optional, user-friendly message that will be displayed in the test runner.
 
 Now run the tests by typing `ember test --server` in the command line (or `ember t -s` for short).
 

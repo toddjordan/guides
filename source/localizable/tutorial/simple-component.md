@@ -245,7 +245,7 @@ test('should toggle wide class on click', function(assert) {
 ```
 
 Now lets render our component using the `render` function.
-The `render` function allows use to pass a template string, so that we can declare the component in the same way we do in our templates.
+The `render` function allows us to pass a template string, so that we can declare the component in the same way we do in our templates.
 Since we set the `rentalObj` variable to our local scope, we can access it as part of our render string.
 
 ```tests/integration/components/rental-listing-test.js
@@ -285,7 +285,7 @@ In the first test, we just want to verify the output of the component, so we jus
 test('should display rental details', function(assert) {
   this.set('rentalObj', rental);
   this.render(hbs`{{rental-listing rental=rentalObj}}`);
-  assert.equal(this.$('.listing h3').text(), 'test-title');
+  assert.equal(this.$('.listing h3').text(), 'test-title', 'Title: test-title');
   assert.equal(this.$('.listing .owner').text().trim(), 'Owner: test-owner');
 });
 ```

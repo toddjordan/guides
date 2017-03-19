@@ -120,12 +120,9 @@ Accessing our maps API through a [service](../../applications/services) will giv
   allowing for easier refactoring and maintenance.
 * It is lazy-loaded, meaning it won't be initialized until it is called the first time.
   In some cases this can reduce your app's processor load and memory consumption.
-* It is a singleton,
-  which will allow us to keep map data will the user navigates around the app,
+* It is a singleton, which means there is only one instance of the service object in browser.
+  This will allow us to keep map data while the user navigates around the app,
   so that returning to a page doesn't require it to reload its maps.
-* It follows a lifecycle,
-  meaning we have hooks to execute cleanup code when the service stops,
-  preventing things like memory leaks and unnecessary processing.
 
 Let's get started creating our service by generating it through Ember CLI,
 which will create the service file, as well as a unit test for it.
@@ -133,10 +130,6 @@ which will create the service file, as well as a unit test for it.
 ```shell
 ember g service maps
 ```
-
-The service will keep a cache of map elements based on location.
-If the map element exists in the cache, the service will return it,
-otherwise it will create a new one and add it to the cache.
 
 Now implement the service as follows.
 Note that we check if a map already exists for the given location and use that one,
@@ -191,7 +184,7 @@ ember g component location-map
 Running this command generates three files: a component JavaScript file, a template, and a test file.
 
 Let's start by adding a `div` element to the component template.
-This `div` will act as a place for the 3rd part map API to render the map to.
+This `div` will act as a place for the 3rd party map API to render the map to.
 
 ```app/templates/components/location-map.hbs
 <div class="map-container"></div>
@@ -223,6 +216,9 @@ export default Ember.Component.extend({
   }
 });
 ```
+
+You may have noticed that this.get('location') refers to a property location we haven't defined.
+This property will be passed in to the component by its parent template below.
 
 Finally open the template file for our `rental-listing` component and add the new `location-map` component.
 
@@ -259,7 +255,7 @@ You may now either move onto the [next feature](../subroutes/), or continue here
 
 We'll use a unit test to validate the service.
 Unit tests are more isolated than integration tests and acceptance test,
-and are intended for testing specific login within a class.
+and are intended for testing specific logic within a class.
 
 For our service unit test, we'll want to verify that locations that have been previously loaded are fetched from cache, while new locations are created using the utility.
 We will isolate our tests from actually calling Google Maps by stubbing our map utility.
@@ -306,7 +302,7 @@ test('should use existing map if one is cached for location', function (assert) 
 When the service calls `createMap` on our fake utility, we will run asserts to validate that it is called.
 In our first test notice that we expect four asserts to be run in line 17. Two of the asserts run in the test function, while the other two are run when `createMap` is called.
 
-In the second test, only one assert is expected (line 26), since the map element is fetch from cache and does not use the utility.
+In the second test, only one assert is expected (line 26), since the map element is fetched from cache and does not use the utility.
 
 Also, note that the second test uses a dummy object as the returned map element (defined on line 4).
 Our map element can be substituted with any object because we are only asserting that the cache has been accessed (see line 34).
