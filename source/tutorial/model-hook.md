@@ -11,16 +11,16 @@ Here's what our homepage will look like when we're done:
 ![super rentals homepage with rentals list](../../images/model-hook/super-rentals-index-with-list.png)
 
 In Ember, route handlers are responsible for loading the model with data for the page.
-It loads the data in a function called [`model`](http://emberjs.com/api/classes/Ember.Route.html#method_model).
+It loads the data in a function called [`model`](https://www.emberjs.com/api/ember/2.16/classes/Route/methods/model?anchor=model).
 The `model` function acts as a **hook**, meaning that Ember will call it for us during different times in our app.
 The model function we've added to our `rentals` route handler will be called when a user navigates to the rentals route via root URL `http://localhost:4200`, or via `http://localhost:4200/rentals`.
 
 Let's open `app/routes/rentals.js` and return an array of rental objects from the `model` function:
 
-```app/routes/rentals.js{+4,+5,+6,+7,+8,+9,+10,+11,+12,+13,+14,+15,+16,+17,+18,+19,+20,+21,+22,+23,+24,+25,+26,+27,+28,+29,+30,+31,+32,+33,+34,+35}
-import Ember from 'ember';
+```app/routes/rentals.js{+4,+5,+6,+7,+8,+9,+10,+11,+12,+13,+14,+15,+16,+17,+18,+19,+20,+21,+22,+23,+24,+25,+26,+27,+28,+29,+30,+31,+32,+33}
+import Route from '@ember/routing/route';
 
-export default Ember.Route.extend({
+export default Route.extend({
   model() {
     return [{
       id: 'grand-old-mansion',
@@ -40,7 +40,6 @@ export default Ember.Route.extend({
       bedrooms: 1,
       image: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Alfonso_13_Highrise_Tegucigalpa.jpg',
       description: 'A commuters dream. This rental is within walking distance of 2 bus stops and the Metro.'
-
     }, {
       id: 'downtown-charm',
       title: 'Downtown Charm',
@@ -50,7 +49,6 @@ export default Ember.Route.extend({
       bedrooms: 3,
       image: 'https://upload.wikimedia.org/wikipedia/commons/f/f7/Wheeldon_Apartment_Building_-_Portland_Oregon.jpg',
       description: 'Convenience is at your doorstep with this charming downtown rental. Great restaurants and active night life are within a few feet.'
-
     }];
   }
 });
@@ -125,7 +123,7 @@ test('should list available rentals.', function (assert) {
 
 Run the tests again using the command `ember t -s`, and toggle "Hide passed tests" to show your new passing test.
 
-Now we are listing rentals, and and verifying it with an acceptance test.
+Now we are listing rentals, and verifying it with an acceptance test.
 This leaves us with 2 remaining acceptance test failures (and 1 eslint failure):
 
 ![list rentals test passing](../../images/model-hook/model-hook.png)

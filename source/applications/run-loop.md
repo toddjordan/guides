@@ -63,10 +63,15 @@ Essentially, batching similar work allows for better pipelining, and further opt
 Let's look at a similar example that is optimized in Ember, starting with a `User` object:
 
 ```javascript
-let User = Ember.Object.extend({
+import EmberObject, {
+  computed
+} from '@ember/object';
+
+let User = EmberObject.extend({
   firstName: null,
   lastName: null,
-  fullName: Ember.computed('firstName', 'lastName', function() {
+
+  fullName: computed('firstName', 'lastName', function() {
     return `${this.get('firstName')} ${this.get('lastName')}`;
   })
 });
@@ -193,13 +198,10 @@ $('a').click(() => {
 });
 ```
 
-The run loop API calls that _schedule_ work, i.e. [`run.schedule`][1], [`run.scheduleOnce`][2],
-[`run.once`][3] have the property that they will approximate a run loop for you if one does not already exist.
+The run loop API calls that _schedule_ work, i.e. [`run.schedule`](https://www.emberjs.com/api/ember/2.16/classes/@ember%2Frunloop/methods/schedule?anchor=schedule),
+[`run.scheduleOnce`](https://www.emberjs.com/api/ember/2.16/classes/@ember%2Frunloop/methods/scheduleOnce?anchor=scheduleOnce),
+[`run.once`](https://www.emberjs.com/api/ember/2.16/classes/@ember%2Frunloop/methods/once?anchor=once) have the property that they will approximate a run loop for you if one does not already exist.
 These automatically created run loops we call _autoruns_.
-
-[1]: http://emberjs.com/api/classes/Ember.run.html#method_schedule
-[2]: http://emberjs.com/api/classes/Ember.run.html#method_scheduleOnce
-[3]: http://emberjs.com/api/classes/Ember.run.html#method_once
 
 Here is some pseudocode to describe what happens using the example above:
 
@@ -263,5 +265,5 @@ Disabling autoruns help you identify these scenarios and helps both your testing
 
 ## Where can I find more information?
 
-Check out the [Ember.run](http://emberjs.com/api/classes/Ember.run.html) API documentation,
+Check out the [Ember.run](https://www.emberjs.com/api/ember/2.16/classes/@ember%2Frunloop) API documentation,
 as well as the [Backburner library](https://github.com/ebryn/backburner.js/) that powers the run loop.

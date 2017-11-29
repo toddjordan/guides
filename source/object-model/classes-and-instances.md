@@ -1,17 +1,19 @@
-As you learn about Ember, you'll see code like `Ember.Component.extend()` and
+As you learn about Ember, you'll see code like `Component.extend()` and
 `DS.Model.extend()`. Here, you'll learn about this `extend()` method, as well
 as other major features of the Ember object model.
 
 ### Defining Classes
 
 To define a new Ember _class_, call the [`extend()`][1] method on
-[`Ember.Object`][2]:
+[`EmberObject`][2]:
 
-[1]: http://emberjs.com/api/classes/Ember.Object.html#method_extend
-[2]: http://emberjs.com/api/classes/Ember.Object.html
+[1]: https://www.emberjs.com/api/ember/2.16/classes/@ember%2Fobject/methods/extend?anchor=extend
+[2]: https://www.emberjs.com/api/ember/2.16/modules/@ember%2Fobject
 
 ```javascript
-const Person = Ember.Object.extend({
+import EmberObject from '@ember/object';
+
+const Person = EmberObject.extend({
   say(thing) {
     alert(thing);
   }
@@ -22,12 +24,14 @@ This defines a new `Person` class with a `say()` method.
 
 You can also create a _subclass_ from any existing class by calling
 its `extend()` method. For example, you might want to create a subclass
-of Ember's built-in [`Ember.Component`][3] class:
+of Ember's built-in [`Component`][3] class:
 
-[3]: http://emberjs.com/api/classes/Ember.Component.html
+[3]: https://www.emberjs.com/api/ember/2.16/classes/Component
 
 ```app/components/todo-item.js
-export default Ember.Component.extend({
+import Component from '@ember/component';
+
+export default Component.extend({
   classNameBindings: ['isUrgent'],
   isUrgent: true
 });
@@ -40,7 +44,9 @@ implementation of your parent class by calling the special `_super()`
 method:
 
 ```javascript
-const Person = Ember.Object.extend({
+import EmberObject from '@ember/object';
+
+const Person = EmberObject.extend({
   say(thing) {
     alert(`${this.get('name')} says: ${thing}`);
   }
@@ -69,7 +75,7 @@ One common example is when overriding the [`normalizeResponse()`][4] hook in one
 
 A handy shortcut for this is to use a "spread operator", like `...arguments`:
 
-[4]: http://emberjs.com/api/data/classes/DS.JSONAPISerializer.html#method_normalizeResponse
+[4]: https://www.emberjs.com/api/ember-data/2.16/classes/DS.JSONAPISerializer/methods/normalizeResponse?anchor=normalizeResponse
 
 ```javascript
 normalizeResponse(store, primaryModelClass, payload, id, requestType)  {
@@ -87,10 +93,12 @@ class by calling its [`create()`][5] method. Any methods, properties and
 computed properties you defined on the class will be available to
 instances:
 
-[5]: http://emberjs.com/api/classes/Ember.Object.html#method_create
+[5]: https://www.emberjs.com/api/ember/2.16/classes/@ember%2Fobject/methods/create?anchor=create
 
 ```javascript
-const Person = Ember.Object.extend({
+import EmberObject from '@ember/object';
+
+const Person = EmberObject.extend({
   say(thing) {
     alert(`${this.get('name')} says: ${thing}`);
   }
@@ -105,7 +113,9 @@ When creating an instance, you can initialize the values of its properties
 by passing an optional hash to the `create()` method:
 
 ```javascript
-const Person = Ember.Object.extend({
+import EmberObject from '@ember/object';
+
+const Person = EmberObject.extend({
   helloWorld() {
     alert(`Hi, my name is ${this.get('name')}`);
   }
@@ -135,10 +145,12 @@ When a new instance is created, its [`init()`][6] method is invoked
 automatically. This is the ideal place to implement setup required on new
 instances:
 
-[6]: http://emberjs.com/api/classes/Ember.Object.html#method_init
+[6]: https://www.emberjs.com/api/ember/2.16/classes/EmberObject/methods/init?anchor=init
 
 ```js
-const Person = Ember.Object.extend({
+import EmberObject from '@ember/object';
+
+const Person = EmberObject.extend({
   init() {
     alert(`${this.get('name')}, reporting for duty!`);
   }
@@ -159,7 +171,9 @@ setup work, and you'll see strange behavior in your application.
 Arrays and objects defined directly on any `Ember.Object` are shared across all instances of that class.
 
 ```js
-const Person = Ember.Object.extend({
+import EmberObject from '@ember/object';
+
+const Person = EmberObject.extend({
   shoppingList: ['eggs', 'cheese']
 });
 
@@ -184,7 +198,9 @@ Person.create({
 To avoid this behavior, it is encouraged to initialize those arrays and object properties during `init()`. Doing so ensures each instance will be unique.
 
 ```js
-const Person = Ember.Object.extend({
+import EmberObject from '@ember/object';
+
+const Person = EmberObject.extend({
   init() {
     this.set('shoppingList', ['eggs', 'cheese']);
   }
@@ -213,11 +229,13 @@ Person.create({
 When accessing the properties of an object, use the [`get()`][7]
 and [`set()`][8] accessor methods:
 
-[7]: http://emberjs.com/api/classes/Ember.Object.html#method_get
-[8]: http://emberjs.com/api/classes/Ember.Object.html#method_set
+[7]: https://www.emberjs.com/api/ember/2.16/classes/@ember%2Fobject/methods/get?anchor=get
+[8]: https://www.emberjs.com/api/ember/2.16/classes/@ember%2Fobject/methods/set?anchor=set
 
 ```js
-const Person = Ember.Object.extend({
+import EmberObject from '@ember/object';
+
+const Person = EmberObject.extend({
   name: 'Robert Jackson'
 });
 

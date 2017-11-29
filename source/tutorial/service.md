@@ -54,11 +54,11 @@ which makes use of `google.maps.Map` to create our map element,
 and `google.maps.Marker` to pin our map based on the resolved location.
 
 ```app/utils/google-maps.js
-import Ember from 'ember';
+import EmberObject from '@ember/object';
 
 const google = window.google;
 
-export default Ember.Object.extend({
+export default EmberObject.extend({
 
   init() {
     this.set('geocoder', new google.maps.Geocoder());
@@ -113,14 +113,17 @@ Note that we check if a map already exists for the given location and use that o
 otherwise we call a Google Maps utility to create one.
 
 ```app/services/maps.js
-import Ember from 'ember';
+import Service from '@ember/service';
+import { camelize } from '@ember/string';
+import EmberObject from '@ember/object';
+
 import MapUtil from '../utils/google-maps';
 
-export default Ember.Service.extend({
+export default Service.extend({
 
   init() {
     if (!this.get('cachedMaps')) {
-      this.set('cachedMaps', Ember.Object.create());
+      this.set('cachedMaps', EmberObject.create());
     }
     if (!this.get('mapUtil')) {
       this.set('mapUtil', MapUtil.create());
@@ -128,7 +131,7 @@ export default Ember.Service.extend({
   },
 
   getMapElement(location) {
-    let camelizedLocation = location.camelize();
+    let camelizedLocation = camelize(location);
     let element = this.get(`cachedMaps.${camelizedLocation}`);
     if (!element) {
       element = this.createMapElement();
@@ -171,7 +174,7 @@ Next, update the component to append the map output to the `div` element we crea
 
 We provide the maps service into our component by initializing a property of our component, called `maps`.
 Services are commonly made available in components and other Ember objects by ["service injection"](../../applications/services/#toc_accessing-services).
-When you initialize a property with `Ember.inject.service()`,
+When you initialize a property with `import { inject } from '@ember/service';`,
 Ember tries to set that property with a service matching its name.
 
 With our `maps` service, our component will call the `getMapElement` function with the provided location.
@@ -180,10 +183,11 @@ which is a [component lifecycle hook](../../components/the-component-lifecycle/#
 This function runs during the component render, after the component's markup gets inserted into the page.
 
 ```app/components/location-map.js
-import Ember from 'ember';
+import Component from '@ember/component';
+import { inject as service } from '@ember/service';
 
-export default Ember.Component.extend({
-  maps: Ember.inject.service(),
+export default Component.extend({
+  maps: service(),
 
   didInsertElement() {
     this._super(...arguments);
@@ -239,16 +243,16 @@ For our service unit test, we'll want to verify that locations that have been pr
 We will isolate our tests from actually calling Google Maps by stubbing our map utility.
 On line 6 of `maps-test.js` below we create an Ember object to simulate the behavior of the utility, but instead of creating a google map, we return an empty JavaScript object.
 
-Unit tests use the function called `this.subject` to instantiate the object to test, and lets the test pass in initial values as arguments.
+To instantiate the object under test, use the `this.subject` function, passing in initial values as arguments.
 In our case we are passing in our fake map utility object in the first test, and passing a cache object for the second test.
 
 ```tests/unit/services/maps-test.js
 import { moduleFor, test } from 'ember-qunit';
-import Ember from 'ember';
+import EmberObject from '@ember/object';
 
 const DUMMY_ELEMENT = {};
 
-let MapUtilStub = Ember.Object.extend({
+let MapUtilStub = EmberObject.extend({
   createMap(element, location) {
     this.assert.ok(element, 'createMap called with element');
     this.assert.ok(location, 'createMap called with location');
@@ -269,7 +273,7 @@ test('should create a new map if one isnt cached for location', function (assert
 
 test('should use existing map if one is cached for location', function (assert) {
   assert.expect(1);
-  let stubCachedMaps = Ember.Object.create({
+  let stubCachedMaps = EmberObject.create({
     sanFrancisco: DUMMY_ELEMENT
   });
   let mapService = this.subject({ cachedMaps: stubCachedMaps });
@@ -285,7 +289,7 @@ In the second test, only one assert is expected (line 26), since the map element
 Also, note that the second test uses a dummy object as the returned map element (defined on line 4).
 Our map element can be substituted with any object because we are only asserting that the cache has been accessed (see line 32).
 
-The location in the cache has been [`camelized`](http://emberjs.com/api/classes/Ember.String.html#method_camelize) (line 30),
+The location in the cache has been [`camelized`](https://www.emberjs.com/api/ember/2.16/classes/String/methods/camelize?anchor=camelize) (line 30),
 so that it may be used as a key to look up our element.
 This matches the behavior in `getMapElement` when city has not yet been cached.
 
@@ -302,9 +306,9 @@ In the stub service, define a method that will fetch the map based on location, 
 ```tests/integration/components/location-map-test.js
 import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
-import Ember from 'ember';
+import Service from '@ember/service';
 
-let StubMapsService = Ember.Service.extend({
+let StubMapsService = Service.extend({
   getMapElement(location) {
     this.set('calledWithLocation', location);
     // We create a div here to simulate our maps service,
@@ -351,9 +355,9 @@ Add the following code after the imports to our acceptance test:
 ```/tests/acceptance/list-rentals-test.js{+3,+5,+6,+7,+8,+9,+10,-11,+12,+13,+14,+15,+16,+17}
 import { test } from 'qunit';
 import moduleForAcceptance from 'super-rentals/tests/helpers/module-for-acceptance';
-import Ember from 'ember';
+import Service from '@ember/service';
 
-let StubMapsService = Ember.Service.extend({
+let StubMapsService = Service.extend({
   getMapElement() {
     return document.createElement('div');
   }

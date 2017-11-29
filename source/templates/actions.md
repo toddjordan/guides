@@ -3,7 +3,7 @@ change application state. For example, imagine that you have a template
 that shows a blog title, and supports expanding the post to show the body.
 
 If you add the
-[`{{action}}`](http://emberjs.com/api/classes/Ember.Templates.helpers.html#method_action)
+[`{{action}}`](https://www.emberjs.com/api/ember/2.16/classes/Ember.Templates.helpers/methods/action?anchor=action)
 helper to any HTML DOM element, when a user clicks the element, the named event
 will be sent to the template's corresponding component or controller.
 
@@ -18,9 +18,9 @@ In the component or controller, you can then define what the action does within
 the `actions` hook:
 
 ```app/components/single-post.js
-import Ember from 'ember';
+import Component from '@ember/component';
 
-export default Ember.Component.extend({
+export default Component.extend({
   actions: {
     toggleBody() {
       this.toggleProperty('isShowingBody');
@@ -48,9 +48,9 @@ The `select` action handler would be called with a single argument
 containing the post model:
 
 ```app/components/single-post.js
-import Ember from 'ember';
+import Component from '@ember/component';
 
-export default Ember.Component.extend({
+export default Component.extend({
   actions: {
     select(post) {
       console.log(post.get('title'));
@@ -62,7 +62,7 @@ export default Ember.Component.extend({
 ## Specifying the Type of Event
 
 By default, the
-[`{{action}}`](http://emberjs.com/api/classes/Ember.Templates.helpers.html#method_action)
+[`{{action}}`](https://www.emberjs.com/api/ember/2.16/classes/Ember.Templates.helpers/methods/action?anchor=action)
 helper listens for click events and triggers the action when the user clicks
 on the element.
 
@@ -80,7 +80,7 @@ become `keyPress`.
 
 ## Allowing Modifier Keys
 
-By default the `{{action}}` helper will ignore click events with
+By default, the `{{action}}` helper will ignore click events with
 pressed modifier keys. You can supply an `allowedKeys` option
 to specify which keys should not be ignored.
 
@@ -116,7 +116,7 @@ will trigger the action *and* the user will be directed to the new page.
 ## Modifying the action's first parameter
 
 If a `value` option for the
-[`{{action}}`](http://emberjs.com/api/classes/Ember.Templates.helpers.html#method_action)
+[`{{action}}`](https://www.emberjs.com/api/ember/2.16/classes/Ember.Templates.helpers/methods/action?anchor=action)
 helper is specified, its value will be considered a property path that will
 be read off of the first parameter of the action. This comes very handy with
 event listeners and enables to work with one-way bindings.

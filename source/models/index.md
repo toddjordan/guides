@@ -74,9 +74,9 @@ You might be tempted to make the component responsible for fetching that
 data and storing it:
 
 ```app/components/list-of-drafts.js
-import Ember from 'ember';
+import Component from '@ember/component';
 
-export default Ember.Component.extend({
+export default Component.extend({
   willRender() {
     $.getJSON('/drafts').then(data => {
       this.set('drafts', data);
@@ -103,9 +103,9 @@ tempted to copy and paste your existing `willRender` code into the new
 component.
 
 ```app/components/drafts-button.js
-import Ember from 'ember';
+import Component from '@ember/component';
 
-export default Ember.Component.extend({
+export default Component.extend({
   willRender() {
     $.getJSON('/drafts').then(data => {
       this.set('drafts', data);
@@ -314,7 +314,7 @@ _asynchronous_ request to the server, and only when that request finishes
 loading can the record be created with its backing data.
 
 Because of this asynchronicity, the store immediately returns a
-_promise_ from the `find()` method. Similarly, any requests that the
+_promise_ from the `findRecord()` method. Similarly, any requests that the
 store makes to the adapter also return promises.
 
 Once the request to the server returns with a JSON payload for the

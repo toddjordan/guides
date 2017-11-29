@@ -79,10 +79,11 @@ We'll implement an action on the parent component called
 `deleteUser()` method.
 
 ```app/components/user-profile.js
-import Ember from 'ember';
+import Component from '@ember/component';
+import { inject as service } from '@ember/service';
 
-export default Ember.Component.extend({
-  login: Ember.inject.service(),
+export default Component.extend({
+  login: service(),
 
   actions: {
     userDidDeleteAccount() {
@@ -101,10 +102,9 @@ Next,
 in the child component we will implement the logic to confirm that the user wants to take the action they indicated by clicking the button:
 
 ```app/components/button-with-confirmation.js
-import Ember from 'ember';
+import Component from '@ember/component';
 
-export default Ember.Component.extend({
-
+export default Component.extend({
   actions: {
     launchConfirmDialog() {
       this.set('confirmShown', true);
@@ -166,10 +166,9 @@ Now, we can use `onConfirm` in the child component to invoke the action on the
 parent:
 
 ```app/components/button-with-confirmation.js
-import Ember from 'ember';
+import Component from '@ember/component';
 
-export default Ember.Component.extend({
-
+export default Component.extend({
   actions: {
     launchConfirmDialog() {
       this.set('confirmShown', true);
@@ -213,9 +212,9 @@ This is accomplished by expecting a promise to be returned from `onConfirm`.
 Upon resolution of the promise, we set a property used to indicate the visibility of the confirmation modal.
 
 ```app/components/button-with-confirmation.js
-import Ember from 'ember';
+import Component from '@ember/component';
 
-export default Ember.Component.extend({
+export default Component.extend({
   actions: {
     launchConfirmDialog() {
       this.set('confirmShown', true);
@@ -245,7 +244,9 @@ the case where the `button-with-confirmation` component we've defined is used wi
 The `sendMessage` action that we pass to the child component may expect a message type parameter to be provided as an argument:
 
 ```app/components/send-message.js
-export default Ember.Component.extend({
+import Component from '@ember/component';
+
+export default Component.extend({
   actions: {
     sendMessage(messageType) {
       //send message here and return a promise
@@ -260,7 +261,10 @@ In cases like this, the parent template can provide the required parameter when 
 For example, if we want to use the button to send a message of type `"info"`:
 
 ```app/templates/components/send-message.hbs
-{{button-with-confirmation text="Click to send your message." onConfirm=(action "sendMessage" "info")}}
+{{button-with-confirmation
+  text="Click to send your message."
+  onConfirm=(action "sendMessage" "info")
+}}
 ```
 
 Within `button-with-confirmation`, the code in the `submitConfirm` action does not change.
@@ -280,7 +284,9 @@ Suppose we want to extend this by allowing `sendMessage` to take a second argume
 the actual text of the message the user is sending:
 
 ```app/components/send-message.js
-export default Ember.Component.extend({
+import Component from '@ember/component';
+
+export default Component.extend({
   actions: {
     sendMessage(messageType, messageText) {
       //send message here and return a promise
@@ -290,7 +296,7 @@ export default Ember.Component.extend({
 ```
 
 We want to arrange for the action to be invoked from within `button-with-confirmation` with both arguments.
-We've seen already that if we provide a `messageType` value to the `action` helper when we insert `buttton-with-confirmation` into its parent `send-message` template,
+We've seen already that if we provide a `messageType` value to the `action` helper when we insert `button-with-confirmation` into its parent `send-message` template,
 that value will be passed to the `sendMessage` action as its first argument automatically when invoked as `onConfirm`.
 If we subsequently pass a single additional argument to `onConfirm` explicitly,
 that argument will be passed to `sendMessage` as its second argument
@@ -302,7 +308,9 @@ Therefore within the component's javascript file,
 we will use a property `confirmValue` to represent that argument and pass it to `onConfirm` as shown here:
 
 ```app/components/button-with-confirmation.js
-export default Ember.Component.extend({
+import Component from '@ember/component';
+
+export default Component.extend({
   actions: {
     //...
     submitConfirm() {
@@ -356,10 +364,11 @@ Actions can be invoked on objects other than the component directly from the tem
 `send-message` component we might include a service that processes the `sendMessage` logic.
 
 ```app/components/send-message.js
-import Ember from 'ember';
+import Component from '@ember/component';
+import { inject as service } from '@ember/service';
 
-export default Ember.Component.extend({
-  messaging: Ember.inject.service(),
+export default Component.extend({
+  messaging: service(),
 
   // component implementation
 });
@@ -380,7 +389,7 @@ By supplying the `target` attribute, the action helper will look to invoke the `
 service, saving us from writing code on the component that just passes the action along to the service.
 
 ```app/services/messaging.js
-import Ember from 'ember';
+import Service from '@ember/service';
 
 export default Ember.Service.extend({
   actions: {
@@ -400,10 +409,11 @@ user's account was deleted, and passes along with it the full user profile objec
 
 
 ```app/components/user-profile.js
-import Ember from 'ember';
+import Component from '@ember/component';
+import { inject as service } from '@ember/service';
 
-export default Ember.Component.extend({
-  login: Ember.inject.service(),
+export default Component.extend({
+  login: service(),
 
   actions: {
     userDidDeleteAccount() {
@@ -425,9 +435,9 @@ object to pull out only what it needs.
 Now when the `system-preferences-editor` handles the delete action, it receives only the user's account `id` string.
 
 ```app/components/system-preferences-editor.js
-import Ember from 'ember';
+import Component from '@ember/component';
 
-export default Ember.Component.extend({
+export default Component.extend({
   actions: {
     userDeleted(idStr) {
       //respond to deletion
@@ -446,10 +456,11 @@ For example, say we want to move account deletion from the `user-profile` compon
 First we would move the `deleteUser` action from `user-profile.js` to the actions object on `system-preferences-editor`.
 
 ```app/components/system-preferences-editor.js
-import Ember from 'ember';
+import Component from '@ember/component';
+import { inject as service } from '@ember/service';
 
-export default Ember.Component.extend({
-  login: Ember.inject.service(),
+export default Component.extend({
+  login: service(),
   actions: {
     deleteUser(idStr) {
       return this.get('login').deleteUserAccount(idStr);

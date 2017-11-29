@@ -12,15 +12,17 @@ We'll start with a simple example.
 We have a `Person` object with `firstName` and `lastName` properties, but we also want a `fullName` property that joins the two names when either of them changes:
 
 ```javascript
-Person = Ember.Object.extend({
+import EmberObject, { computed } from '@ember/object';
+
+Person = EmberObject.extend({
   // these will be supplied by `create`
   firstName: null,
   lastName: null,
 
-  fullName: Ember.computed('firstName', 'lastName', function() {
+  fullName: computed('firstName', 'lastName', function() {
     let firstName = this.get('firstName');
     let lastName = this.get('lastName');
-    
+
     return `${firstName} ${lastName}`;
   })
 });
@@ -43,11 +45,13 @@ Changing any of the dependent properties causes the cache to invalidate, so that
 In the previous example, the `fullName` computed property depends on two other properties:
 
 ```javascript
+import Ember from 'ember':
+
 …
-  fullName: Ember.computed('firstName', 'lastName', function() {
+  fullName: computed('firstName', 'lastName', function() {
     let firstName = this.get('firstName');
     let lastName = this.get('lastName');
-    
+
     return `${firstName} ${lastName}`;
   })
 …
@@ -57,11 +61,13 @@ We can also use a short-hand syntax called _brace expansion_ to declare the depe
 You surround the dependent properties with braces (`{}`), and separate with commas, like so:
 
 ```javascript
+import Ember from 'ember':
+
 …
-  fullName: Ember.computed('{firstName,lastName}', function() {
+  fullName: computed('{firstName,lastName}', function() {
     let firstName = this.get('firstName');
     let lastName = this.get('lastName');
-    
+
     return `${firstName} ${lastName}`;
   })
 …
@@ -70,10 +76,12 @@ You surround the dependent properties with braces (`{}`), and separate with comm
 This is especially useful when you depend on properties of an object, since it allows you to replace:
 
 ```javascript
-let obj = Ember.Object.extend({
+import EmberObject, { computed } from '@ember/object';
+
+let obj = EmberObject.extend({
   baz: {foo: 'BLAMMO', bar: 'BLAZORZ'},
 
-  something: Ember.computed('baz.foo', 'baz.bar', function() {
+  something: computed('baz.foo', 'baz.bar', function() {
     return this.get('baz.foo') + ' ' + this.get('baz.bar');
   })
 });
@@ -82,10 +90,12 @@ let obj = Ember.Object.extend({
 With:
 
 ```javascript
-let obj = Ember.Object.extend({
+import EmberObject, { computed } from '@ember/object';
+
+let obj = EmberObject.extend({
   baz: {foo: 'BLAMMO', bar: 'BLAZORZ'},
 
-  something: Ember.computed('baz.{foo,bar}', function() {
+  something: computed('baz.{foo,bar}', function() {
     return this.get('baz.foo') + ' ' + this.get('baz.bar');
   })
 });
@@ -98,17 +108,19 @@ Let's add a `description` computed property to the previous example,
 and use the existing `fullName` property and add in some other properties:
 
 ```javascript
-Person = Ember.Object.extend({
+import EmberObject, { computed } from '@ember/object';
+
+Person = EmberObject.extend({
   firstName: null,
   lastName: null,
   age: null,
   country: null,
 
-  fullName: Ember.computed('firstName', 'lastName', function() {
+  fullName: computed('firstName', 'lastName', function() {
     return `${this.get('firstName')} ${this.get('lastName')}`;
   }),
 
-  description: Ember.computed('fullName', 'age', 'country', function() {
+  description: computed('fullName', 'age', 'country', function() {
     return `${this.get('fullName')}; Age: ${this.get('age')}; Country: ${this.get('country')}`;
   })
 });
@@ -145,11 +157,13 @@ If you try to set a computed property, it will be invoked with the key (property
 You must return the new intended value of the computed property from the setter function.
 
 ```javascript
-Person = Ember.Object.extend({
+import EmberObject, { computed } from '@ember/object';
+
+Person = EmberObject.extend({
   firstName: null,
   lastName: null,
 
-  fullName: Ember.computed('firstName', 'lastName', {
+  fullName: computed('firstName', 'lastName', {
     get(key) {
       return `${this.get('firstName')} ${this.get('lastName')}`;
     },
@@ -177,16 +191,19 @@ Ember provides a number of computed property macros, which are shorter ways of e
 In this example, the two computed properties are equivalent:
 
 ```javascript
-Person = Ember.Object.extend({
+import EmberObject, { computed } from '@ember/object';
+import { equal } from '@ember/object/computed';
+
+Person = EmberObject.extend({
   fullName: 'Tony Stark',
 
-  isIronManLongWay: Ember.computed('fullName', function() {
+  isIronManLongWay: computed('fullName', function() {
     return this.get('fullName') === 'Tony Stark';
   }),
 
-  isIronManShortWay: Ember.computed.equal('fullName', 'Tony Stark')
+  isIronManShortWay: equal('fullName', 'Tony Stark')
 });
 ```
 
 To see the full list of computed property macros, have a look at
-[the API documentation](http://emberjs.com/api/classes/Ember.computed.html)
+[the API documentation](https://www.emberjs.com/api/ember/2.16/modules/@ember%2Fobject)

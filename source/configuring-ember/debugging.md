@@ -6,9 +6,9 @@ with your application.
 #### Log router transitions
 
 ```app/app.js
-import Ember from 'ember';
+import Application from '@ember/application';
 
-export default Ember.Application.extend({
+export default Application.extend({
   // Basic logging, e.g. "Transitioned into 'post'"
   LOG_TRANSITIONS: true,
 
@@ -64,9 +64,9 @@ It's useful for understanding which objects Ember is finding when it does a look
 and which it is generating automatically for you.
 
 ```app/app.js
-import Ember from 'ember';
+import Application from '@ember/application';
 
-export default Ember.Application.extend({
+export default Application.extend({
   LOG_RESOLVER: true
 });
 ```
@@ -119,11 +119,11 @@ but a common practice is to call `console.assert` to dump the error to the
 console.
 
 ```app/app.js
-import Ember from 'ember';
+import { assert } from '@ember/debug';
 import RSVP from 'rsvp';
 
 RSVP.on('error', function(error) {
-  Ember.assert(error, false);
+  assert(error, false);
 });
 ```
 
@@ -133,8 +133,13 @@ Backburner has support for stitching the stacktraces together so that you can
 track down where an erroring `Ember.run.later` is being initiated from. Unfortunately,
 this is quite slow and is not appropriate for production or even normal development.
 
-To enable this mode you can set:
+To enable full stacktrace mode in Backburner, and thus determine the stack of the task
+when it was scheduled onto the run loop, you can set:
 
 ```javascript
 Ember.run.backburner.DEBUG = true;
 ```
+
+Once the `DEBUG` value is set to `true`, when you are at a breakpoint you can navigate
+back up the stack to the `flush` method in and check the `errorRecordedForStack.stack`
+value, which will be the captured stack when this job was scheduled.

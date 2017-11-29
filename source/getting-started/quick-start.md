@@ -48,7 +48,7 @@ Let's make sure everything is working properly.
 
 ```sh
 cd ember-quickstart
-ember server
+ember serve
 ```
 
 After a few seconds, you should see output that looks like this:
@@ -86,7 +86,7 @@ To do that, the first step is to create a route.
 For now, you can think of routes as being the different pages that make up your application.
 
 Ember comes with _generators_ that automate the boilerplate code for common tasks.
-To generate a route, type this in your terminal:
+To generate a route, type this in a new terminal window in your `ember-quickstart` directory:
 
 ```sh
 ember generate route scientists
@@ -129,18 +129,18 @@ and we can specify a model by editing `app/routes/scientists.js`.
 We'll take the code created for us by the generator and add a `model()` method to the `Route`:
 
 ```app/routes/scientists.js{+4,+5,+6}
-import Ember from 'ember';
+import Route from '@ember/routing/route';
 
-export default Ember.Route.extend({
+export default Route.extend({
   model() {
     return ['Marie Curie', 'Mae Jemison', 'Albert Hofmann'];
   }
 });
 ```
 
-This code example uses the latest features in JavaScript, some of which
-you may not be familiar with. Learn more with this [overview of the
-newest JavaScript features](https://ponyfoo.com/articles/es6).
+This code example uses the latest features in JavaScript,
+some of which you may not be familiar with.
+Learn more with this [overview of the newest JavaScript features](https://ponyfoo.com/articles/es6).
 
 In a route's `model()` method, you return whatever data you want to make available to the template.
 If you need to fetch data asynchronously,
@@ -250,9 +250,9 @@ To handle this function call you need to modify the `people-list` component file
 In the component, add an `actions` object with a `showPerson` function that alerts the first argument.
 
 ```app/components/people-list.js{+4,+5,+6,+7,+8}
-import Ember from 'ember';
+import Component from '@ember/component';
 
-export default Ember.Component.extend({
+export default Component.extend({
   actions: {
     showPerson(person) {
       alert(person);

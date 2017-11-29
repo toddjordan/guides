@@ -7,18 +7,21 @@ to calculate the incomplete todo's based on their `isDone` property.
 To facilitate this, Ember provides the `@each` key illustrated below:
 
 ```app/components/todo-list.js
-export default Ember.Component.extend({
+import EmberObject, { computed } from '@ember/object';
+import Component from '@ember/component';
+
+export default Component.extend({
   todos: null,
 
   init() {
     this.set('todos', [
-      Ember.Object.create({ isDone: true }),
-      Ember.Object.create({ isDone: false }),
-      Ember.Object.create({ isDone: true }),
+      EmberObject.create({ isDone: true }),
+      EmberObject.create({ isDone: false }),
+      EmberObject.create({ isDone: true }),
     ]);
   },
 
-  incomplete: Ember.computed('todos.@each.isDone', function() {
+  incomplete: computed('todos.@each.isDone', function() {
     let todos = this.get('todos');
     return todos.filterBy('isDone', false);
   })
@@ -35,29 +38,33 @@ and fire observers when any of the following events occurs:
 
 ### Multiple Dependent Keys
 
-It's important to note that the `@each` key can be dependant on more than one key. 
-For example, if you are using `Ember.computed` to sort an array by multiple keys, 
+It's important to note that the `@each` key can be dependent on more than one key.
+For example, if you are using `Ember.computed` to sort an array by multiple keys,
 you would declare the dependency with braces: `todos.@each.{priority,title}`
 
 ### Computed Property Macros
 
 Ember also provides a computed property macro
-[`computed.filterBy`](http://emberjs.com/api/classes/Ember.computed.html#method_filterBy),
+[`computed.filterBy`](https://www.emberjs.com/api/ember/2.16/classes/@ember%2Fobject%2Fcomputed/methods/alias?anchor=filterBy&show=inherited%2Cprotected%2Cprivate%2Cdeprecated),
 which is a shorter way of expressing the above computed property:
 
 ```app/components/todo-list.js
-export default Ember.Component.extend({
+import EmberObject, { computed } from '@ember/object';
+import { filterBy } from '@ember/object/computed';
+import Component from '@ember/component';
+
+export default Component.extend({
   todos: null,
 
   init() {
     this.set('todos', [
-      Ember.Object.create({ isDone: true }),
-      Ember.Object.create({ isDone: false }),
-      Ember.Object.create({ isDone: true }),
+      EmberObject.create({ isDone: true }),
+      EmberObject.create({ isDone: false }),
+      EmberObject.create({ isDone: true }),
     ]);
   },
 
-  incomplete: Ember.computed.filterBy('todos', 'isDone', false)
+  incomplete: filterBy('todos', 'isDone', false)
 });
 ```
 
@@ -75,6 +82,8 @@ If we change the todo's `isDone` property, the `incomplete` property is updated
 automatically:
 
 ```javascript
+import EmberObject from '@ember/object';
+
 let todos = todoListComponent.get('todos');
 let todo = todos.objectAt(1);
 todo.set('isDone', true);
@@ -82,7 +91,7 @@ todo.set('isDone', true);
 todoListComponent.get('incomplete.length');
 // 0
 
-todo = Ember.Object.create({ isDone: false });
+todo = EmberObject.create({ isDone: false });
 todos.pushObject(todo);
 
 todoListComponent.get('incomplete.length');
@@ -100,19 +109,22 @@ using the `[]` key will only update if items are added to or removed from the ar
 or if the array property is set to a different array. For example:
 
 ```app/components/todo-list.js
-export default Ember.Component.extend({
+import EmberObject, { computed } from '@ember/object';
+import Component from '@ember/component';
+
+export default Component.extend({
   todos: null,
 
   init() {
     this.set('todos', [
-      Ember.Object.create({ isDone: true }),
-      Ember.Object.create({ isDone: false }),
-      Ember.Object.create({ isDone: true }),
+      EmberObject.create({ isDone: true }),
+      EmberObject.create({ isDone: false }),
+      EmberObject.create({ isDone: true }),
     ]);
   },
 
   selectedTodo: null,
-  indexOfSelectedTodo: Ember.computed('selectedTodo', 'todos.[]', function() {
+  indexOfSelectedTodo: computed('selectedTodo', 'todos.[]', function() {
     return this.get('todos').indexOf(this.get('selectedTodo'));
   })
 });
@@ -121,15 +133,17 @@ export default Ember.Component.extend({
 Here, `indexOfSelectedTodo` depends on `todos.[]`, so it will update if we add an item
 to `todos`, but won't update if the value of `isDone` on a `todo` changes.
 
-Several of the [Ember.computed](http://emberjs.com/api/classes/Ember.computed.html) macros
+Several of the [Ember.computed](https://www.emberjs.com/api/ember/2.16/classes/@ember%2Fobject%2Fcomputed) macros
 utilize the `[]` key to implement common use-cases. For instance, to
 create a computed property that mapped properties from an array, you could use
-[Ember.computed.map](http://emberjs.com/api/classes/Ember.computed.html#method_map)
+[Ember.computed.map](https://www.emberjs.com/api/ember/2.16/classes/@ember%2Fobject%2Fcomputed/methods/map?anchor=map)
 or build the computed property yourself:
 
 ```javascript
-const Hamster = Ember.Object.extend({
-  excitingChores: Ember.computed('chores.[]', function() {
+import EmberObject, { computed } from '@ember/object';
+
+const Hamster = EmberObject.extend({
+  excitingChores: computed('chores.[]', function() {
     return this.get('chores').map(function(chore, index) {
       return `CHORE ${index}: ${chore.toUpperCase()}!`;
     });
@@ -148,8 +162,11 @@ hamster.get('excitingChores'); // ['CHORE 1: CLEAN!', 'CHORE 2: WRITE MORE UNIT 
 By comparison, using the computed macro abstracts some of this away:
 
 ```javascript
-const Hamster = Ember.Object.extend({
-  excitingChores: Ember.computed.map('chores', function(chore, index) {
+import EmberObject from '@ember/object';
+import { map } from '@ember/object/computed';
+
+const Hamster = EmberObject.extend({
+  excitingChores: map('chores', function(chore, index) {
     return `CHORE ${index}: ${chore.toUpperCase()}!`;
   })
 });

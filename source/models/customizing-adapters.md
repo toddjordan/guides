@@ -46,21 +46,20 @@ export default DS.JSONAPIAdapter.extend({
 });
 ```
 
-By default Ember Data comes with several built-in adapters. Feel free
-to use these adapters as a starting point for creating your own custom
-adapter.
+Ember Data comes with several built-in adapters.
+Feel free to use these adapters as a starting point for creating your own custom adapter.
 
-- [DS.Adapter](http://emberjs.com/api/data/classes/DS.Adapter.html) is the basic adapter
+- [DS.Adapter](https://www.emberjs.com/api/ember-data/2.16/classes/DS.Adapter) is the basic adapter
 with no functionality. It is generally a good starting point if you
 want to create an adapter that is radically different from the other
 Ember adapters.
 
-- [DS.JSONAPIAdapter](http://emberjs.com/api/data/classes/DS.JSONAPIAdapter.html)
+- [DS.JSONAPIAdapter](https://www.emberjs.com/api/ember-data/2.16/classes/DS.JSONAPIAdapter)
 The `JSONAPIAdapter` is the default adapter and follows JSON API
 conventions to communicate with an HTTP server by transmitting JSON
 via XHR.
 
-- [DS.RESTAdapter](http://emberjs.com/api/data/classes/DS.RESTAdapter.html)
+- [DS.RESTAdapter](https://www.emberjs.com/api/ember-data/2.16/classes/DS.RESTAdapter)
 The `RESTAdapter` allows your store to communicate with an HTTP server
 by transmitting JSON via XHR. Before Ember Data 2.0 this adapter was the default.
 
@@ -68,7 +67,7 @@ by transmitting JSON via XHR. Before Ember Data 2.0 this adapter was the default
 ## Customizing the JSONAPIAdapter
 
 The
-[DS.JSONAPIAdapter](http://emberjs.com/api/data/classes/DS.JSONAPIAdapter.html)
+[DS.JSONAPIAdapter](https://www.emberjs.com/api/ember-data/2.16/classes/DS.JSONAPIAdapter)
 has a handful of hooks that are commonly used to extend it to work
 with non-standard backends.
 
@@ -156,7 +155,7 @@ Requests for `person` would now target `http://emberjs.com/api/1/people/1`.
 
 #### Host Customization
 
-By default the adapter will target the current domain. If you would
+By default, the adapter will target the current domain. If you would
 like to specify a new domain you can do so by setting the `host`
 property on the adapter.
 
@@ -173,7 +172,7 @@ Requests for `person` would now target `https://api.example.com/people/1`.
 
 #### Path Customization
 
-By default the `JSONAPIAdapter` will attempt to pluralize and dasherize
+By default, the `JSONAPIAdapter` will attempt to pluralize and dasherize
 the model name to generate the path name. If this convention does not
 conform to your backend you can override the `pathForType` method.
 
@@ -183,10 +182,11 @@ underscore_case instead of camelCase you could override the
 
 ```app/adapters/application.js
 import DS from 'ember-data';
+import { underscore } from '@ember/string';
 
 export default DS.JSONAPIAdapter.extend({
   pathForType: function(type) {
-    return Ember.String.underscore(type);
+    return underscore(type);
   }
 });
 ```
@@ -217,10 +217,13 @@ property dependent on the `session` service.
 
 ```app/adapters/application.js
 import DS from 'ember-data';
+import { computed } from '@ember/object';
+import { inject as service } from '@ember/service';
+
 
 export default DS.JSONAPIAdapter.extend({
-  session: Ember.inject.service('session'),
-  headers: Ember.computed('session.authToken', function() {
+  session: service('session'),
+  headers: computed('session.authToken', function() {
     return {
       'API_KEY': this.get('session.authToken'),
       'ANOTHER_HEADER': 'Some header value'
@@ -232,17 +235,19 @@ export default DS.JSONAPIAdapter.extend({
 In some cases, your dynamic headers may require data from some
 object outside of Ember's observer system (for example
 `document.cookie`). You can use the
-[volatile](http://emberjs.com/api/classes/Ember.ComputedProperty.html#method_volatile)
+[volatile](https://www.emberjs.com/api/ember/2.16/classes/@ember%2Fobject%2Fcomputed/methods/property?anchor=volatile&show=inherited%2Cprotected%2Cprivate%2Cdeprecated)
 function to set the property into a non-cached mode causing the headers to
 be recomputed with every request.
 
 ```app/adapters/application.js
 import DS from 'ember-data';
+import { computed } from '@ember/object';
+import { get } from '@ember/object';
 
 export default DS.JSONAPIAdapter.extend({
-  headers: Ember.computed(function() {
+  headers: computed(function() {
     return {
-      'API_KEY': Ember.get(document.cookie.match(/apiKey\=([^;]*)/), '1'),
+      'API_KEY': get(document.cookie.match(/apiKey\=([^;]*)/), '1'),
       'ANOTHER_HEADER': 'Some header value'
     };
   }).volatile()

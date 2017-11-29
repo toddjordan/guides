@@ -8,12 +8,13 @@ component is bound to its `style` property.
 > component pretty-color`.
 
 ```app/components/pretty-color.js
-import Ember from 'ember';
+import Component from '@ember/component';
+import { computed } from '@ember/object';
 
-export default Ember.Component.extend({
+export default Component.extend({
   attributeBindings: ['style'],
 
-  style: Ember.computed('name', function() {
+  style: computed('name', function() {
     const name = this.get('name');
     return `color: ${name}`;
   })
@@ -29,6 +30,8 @@ and its template (if available).  Make sure to set `integration: true` to enable
 integration test capability.
 
 ```tests/integration/components/pretty-color-test.js
+import { moduleForComponent, test } from 'ember-qunit';
+
 moduleForComponent('pretty-color', 'Integration | Component | pretty color', {
   integration: true
 });
@@ -42,7 +45,12 @@ We can test that changing the component's `name` property updates the
 component's `style` attribute and is reflected in the  rendered HTML:
 
 ```tests/integration/components/pretty-color-test.js
+import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
+
+moduleForComponent('pretty-color', 'Integration | Component | pretty color', {
+  integration: true
+});
 
 test('should change colors', function(assert) {
   assert.expect(2);
@@ -64,6 +72,13 @@ We might also test this component to ensure that the content of its template is
 being rendered properly:
 
 ```tests/integration/components/pretty-color-test.js
+import { moduleForComponent, test } from 'ember-qunit';
+import hbs from 'htmlbars-inline-precompile';
+
+moduleForComponent('pretty-color', 'Integration | Component | pretty color', {
+  integration: true
+});
+
 test('should be rendered with its color name', function(assert) {
   assert.expect(2);
 
@@ -93,9 +108,9 @@ clicked on:
 > component magic-title`.
 
 ```app/components/magic-title.js
-import Ember from 'ember';
+import Component from '@ember/component';
 
-export default Ember.Component.extend({
+export default Component.extend({
   title: 'Hello World',
 
   actions: {
@@ -118,6 +133,14 @@ We recommend using native DOM events wrapped inside the run loop or the [`ember-
 Using jQuery to simulate user click events might lead to unexpected test results as the action can potentially be called twice.
 
 ```tests/integration/components/magic-title-test.js
+import { moduleForComponent, test } from 'ember-qunit';
+import hbs from 'htmlbars-inline-precompile';
+import { run } from '@ember/runloop';
+
+moduleForComponent('magic-title', 'Integration | Component | magic title', {
+  integration: true
+});
+
 test('should update title on button click', function(assert) {
   assert.expect(2);
 
@@ -144,9 +167,9 @@ For example, imagine you have a comment form component that invokes a
 > component comment-form`.
 
 ```app/components/comment-form.js
-import Ember from 'ember';
+import Component from '@ember/component';
 
-export default Ember.Component.extend({
+export default Component.extend({
   comment: '',
 
   actions: {
@@ -168,10 +191,21 @@ export default Ember.Component.extend({
 
 Here's an example test that asserts that the specified `externalAction` function
 is invoked when the component's internal `submitComment` action is triggered by making use
-of a test double (dummy function):
+of a test double (dummy function).
+`assert.expect(1)` at the top of the test makes sure that the assertion inside the
+external action is called:
 
 ```tests/integration/components/comment-form-test.js
+import { moduleForComponent, test } from 'ember-qunit';
+import hbs from 'htmlbars-inline-precompile';
+import { run } from '@ember/runloop';
+
+moduleForComponent('comment-form', 'Integration | Component | comment form', {
+  integration: true
+});
+
 test('should trigger external action on form submit', function(assert) {
+  assert.expect(1);
 
   // test double for the external action
   this.set('externalAction', (actual) => {
@@ -189,6 +223,7 @@ test('should trigger external action on form submit', function(assert) {
    Ember.run(() => document.querySelector('.comment-input').click());
 });
 ```
+
 ### Stubbing Services
 
 In cases where components have dependencies on Ember services, it is possible to stub these
@@ -202,17 +237,19 @@ and country of your current location:
 > component location-indicator`.
 
 ```app/components/location-indicator.js
-import Ember from 'ember';
+import Component from '@ember/component';
+import { computed } from '@ember/object';
+import { inject as service } from '@ember/service';
 
-export default Ember.Component.extend({
-  locationService: Ember.inject.service('location-service'),
+export default Component.extend({
+  locationService: service('location-service'),
 
   // when the coordinates change, call the location service to get the current city and country
-  city: Ember.computed('locationService.currentLocation', function () {
+  city: computed('locationService.currentLocation', function () {
     return this.get('locationService').getCurrentCity();
   }),
 
-  country: Ember.computed('locationService.currentLocation', function () {
+  country: computed('locationService.currentLocation', function () {
     return this.get('locationService').getCurrentCountry();
   })
 });
@@ -229,10 +266,10 @@ beforeEach function.  In this case we initially force location to New York.
 ```tests/integration/components/location-indicator-test.js
 import { moduleForComponent, test } from 'ember-qunit';
 import hbs from 'htmlbars-inline-precompile';
-import Ember from 'ember';
+import Service from '@ember/service';
 
 //Stub location service
-const locationStub = Ember.Service.extend({
+const locationStub = Service.extend({
   city: 'New York',
   country: 'USA',
   currentLocation: {
@@ -263,7 +300,39 @@ moduleForComponent('location-indicator', 'Integration | Component | location ind
 Once the stub service is registered the test simply needs to check that the stub data that
 is being returned from the service is reflected in the component output.
 
-```tests/integration/components/location-indicator-test.js
+```tests/integration/components/location-indicator-test.js{+33,+34,+35,+36}
+import { moduleForComponent, test } from 'ember-qunit';
+import hbs from 'htmlbars-inline-precompile';
+import Service from '@ember/service';
+
+//Stub location service
+const locationStub = Service.extend({
+  city: 'New York',
+  country: 'USA',
+  currentLocation: {
+    x: 1234,
+    y: 5678
+  },
+
+  getCurrentCity() {
+    return this.get('city');
+  },
+  getCurrentCountry() {
+    return this.get('country');
+  }
+});
+
+moduleForComponent('location-indicator', 'Integration | Component | location indicator', {
+  integration: true,
+
+  beforeEach: function () {
+    this.register('service:location-service', locationStub);
+    // Calling inject puts the service instance in the context of the test,
+    // making it accessible as "locationService" within each test
+    this.inject.service('location-service', { as: 'locationService' });
+  }
+});
+
 test('should reveal current location', function(assert) {
   this.render(hbs`{{location-indicator}}`);
   assert.equal(this.$().text().trim(), 'You currently are located in New York, USA');
@@ -273,7 +342,44 @@ test('should reveal current location', function(assert) {
 In the next example, we'll add another test that validates that the display changes
 when we modify the values on the service.
 
-```tests/integration/components/location-indicator-test.js
+```tests/integration/components/location-indicator-test.js{+38,+39,+40,+41,+42,+43,+44,+45}
+import { moduleForComponent, test } from 'ember-qunit';
+import hbs from 'htmlbars-inline-precompile';
+import Service from '@ember/service';
+
+//Stub location service
+const locationStub = Service.extend({
+  city: 'New York',
+  country: 'USA',
+  currentLocation: {
+    x: 1234,
+    y: 5678
+  },
+
+  getCurrentCity() {
+    return this.get('city');
+  },
+  getCurrentCountry() {
+    return this.get('country');
+  }
+});
+
+moduleForComponent('location-indicator', 'Integration | Component | location indicator', {
+  integration: true,
+
+  beforeEach: function () {
+    this.register('service:location-service', locationStub);
+    // Calling inject puts the service instance in the context of the test,
+    // making it accessible as "locationService" within each test
+    this.inject.service('location-service', { as: 'locationService' });
+  }
+});
+
+test('should reveal current location', function(assert) {
+  this.render(hbs`{{location-indicator}}`);
+  assert.equal(this.$().text().trim(), 'You currently are located in New York, USA');
+});
+
 test('should change displayed location when current location changes', function (assert) {
   this.render(hbs`{{location-indicator}}`);
   assert.equal(this.$().text().trim(), 'You currently are located in New York, USA', 'origin location should display');
@@ -289,20 +395,21 @@ Often, interacting with a component will cause asynchronous behavior to occur, s
 `wait` helper is designed to handle these scenarios, by providing a hook to ensure assertions are made after
 all Ajax requests and timers are complete.
 
-Imagine you have a typeahead component that uses [`Ember.run.debounce`](http://emberjs.com/api/classes/Ember.run.html#method_debounce)
+Imagine you have a typeahead component that uses [`Ember.run.debounce`](https://www.emberjs.com/api/ember/2.16/classes/@ember%2Frunloop/methods/debounce?anchor=debounce)
 to limit requests to the server, and you want to verify that results are displayed after typing a character.
 
 > You can follow along by generating your own component with `ember generate
 > component delayed-typeahead`.
 
 ```app/components/delayed-typeahead.js
-import Ember from 'ember';
+import Component from '@ember/component';
+import { debounce } from "@ember/runloop";
 
-export default Ember.Component.extend({
+export default Component.extend({
   actions: {
     handleTyping() {
       //the fetchResults function is passed into the component from its parent
-      Ember.run.debounce(this, this.get('fetchResults'), this.get('searchValue'), 250);
+      debounce(this, this.get('fetchResults'), this.get('searchValue'), 250);
     }
   }
 });

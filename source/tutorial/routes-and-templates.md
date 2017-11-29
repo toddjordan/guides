@@ -46,10 +46,10 @@ If we open `/app/router.js`, we'll see a new line of code for the **about** rout
 to run our `/app/routes/about.js` file when a visitor navigates to `/about`.
 
 ```app/router.js{+10}
-import Ember from 'ember';
+import EmberRouter from '@ember/routing/router';
 import config from './config/environment';
 
-const Router = Ember.Router.extend({
+const Router = EmberRouter.extend({
   location: config.locationType,
   rootURL: config.rootURL
 });
@@ -220,12 +220,12 @@ To do this we will add code to our index route handler by implementing a route l
 called `beforeModel`.
 
 Each route handler has a set of "lifecycle hooks", which are functions that are invoked at specific times during the loading of a page.
-The [`beforeModel`](http://emberjs.com/api/classes/Ember.Route.html#method_beforeModel)
+The [`beforeModel`](https://www.emberjs.com/api/ember/2.16/classes/Route/methods/beforeModel?anchor=beforeModel)
 hook gets executed before the data gets fetched from the model hook, and before the page is rendered.
 See [the next section](../model-hook) for an explanation of the model hook.
 
-In our index route handler, we'll call the [`replaceWith`](http://emberjs.com/api/classes/Ember.Route.html#method_replaceWith) function.
-The `replaceWith` function is similar to the route's `transitionTo` function,
+In our index route handler, we'll call the [`replaceWith`](https://www.emberjs.com/api/ember/2.16/classes/Route/methods/beforeModel?anchor=replaceWith) function.
+The `replaceWith` function is similar to the route's [`transitionTo()`](https://www.emberjs.com/api/ember/2.16/classes/Route/methods/transitionTo?anchor=transitionTo) function,
 the difference being that `replaceWith` will replace the current URL in the browser's history,
 while `transitionTo` will add to the history.
 Since we want our `rentals` route to serve as our home page, we will use the `replaceWith` function.
@@ -233,9 +233,9 @@ Since we want our `rentals` route to serve as our home page, we will use the `re
 In our index route handler, we add the `replaceWith` invocation to `beforeModel`.
 
 ```app/routes/index.js{+4,+5,+6}
-import Ember from 'ember';
+import Route from '@ember/routing/route';
 
-export default Ember.Route.extend({
+export default Route.extend({
   beforeModel() {
     this.replaceWith('rentals');
   }
@@ -364,4 +364,3 @@ In the screen recording below, we run the tests, deselect "Hide passed tests", a
 revealing the 3 tests we got passing.
 
 ![passing navigation tests](../../images/routes-and-templates/ember-route-tests.gif)
-

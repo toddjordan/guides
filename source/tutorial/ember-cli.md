@@ -81,10 +81,10 @@ If you take a look at `app/router.js`, you'll notice some syntax that may be
 unfamiliar to you.
 
 ```app/router.js
-import Ember from 'ember';
+import EmberRouter from '@ember/routing/router';
 import config from './config/environment';
 
-const Router = Ember.Router.extend({
+const Router = EmberRouter.extend({
   location: config.locationType,
   rootURL: config.rootURL
 });
@@ -97,8 +97,8 @@ export default Router;
 
 Ember CLI uses ECMAScript 2015 (ES2015 for short or previously known as ES6) modules to organize application
 code.
-For example, the line `import Ember from 'ember';` gives us access to the actual
-Ember.js library as the variable `Ember`. And the `import config from
+For example, the line `import EmberRouter from '@ember/routing/router';` gives us access to
+Ember's Router class as the variable `EmberRouter`. And the `import config from
 './config/environment';` line gives us access to our app's configuration data
 as the variable `config`. `const` is a way to declare a read-only variable to make
 sure it is not accidentally reassigned elsewhere. At the end of the file,
@@ -112,7 +112,7 @@ Once we have a new project in place, we can confirm everything is working by
 starting the Ember development server:
 
 ```shell
-ember server
+ember serve
 ```
 
 or, for short:

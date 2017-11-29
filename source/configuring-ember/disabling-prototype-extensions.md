@@ -9,7 +9,7 @@ objects in the following ways:
 
 * `String` is extended to add convenience methods, such as
   `camelize()` and `w()`. You can find a list of these methods with the
-  [Ember.String documentation](http://emberjs.com/api/classes/Ember.String.html).
+  [Ember.String documentation](https://www.emberjs.com/api/ember/2.16/classes/String).
 
 * `Function` is extended with methods to annotate functions as
   computed properties, via the `property()` method, and as observers,
@@ -77,13 +77,15 @@ You can manually coerce a native array into an array that implements the
 required interfaces using the convenience method `Ember.A`:
 
 ```javascript
+import { A } from "@ember/array"
+
 let islands = ['Oahu', 'Kauai'];
 islands.includes('Oahu');
 //=> TypeError: Object Oahu,Kauai has no method 'includes'
 
 // Convert `islands` to an array that implements the
 // Ember enumerable and array interfaces
-Ember.A(islands);
+A(islands);
 
 islands.includes('Oahu');
 //=> true
@@ -92,16 +94,18 @@ islands.includes('Oahu');
 ### Strings
 
 Strings will no longer have the convenience methods described in the
-[`Ember.String` API reference](http://emberjs.com/api/classes/Ember.String.html).
+[`Ember.String` API reference](https://www.emberjs.com/api/ember/2.16/classes/String).
 Instead,
 you can use the similarly-named methods of the `Ember.String` object and
 pass the string to use as the first parameter:
 
 ```javascript
+import { camelize } from "@ember/string"
+
 "my_cool_class".camelize();
 //=> TypeError: Object my_cool_class has no method 'camelize'
 
-Ember.String.camelize("my_cool_class");
+camelize("my_cool_class");
 //=> "myCoolClass"
 ```
 
@@ -116,6 +120,8 @@ To annotate computed properties, use the `Ember.computed()` method to
 wrap the function:
 
 ```javascript
+import { computed } from "@ember/object"
+
 // This won't work:
 fullName: function() {
   return `${this.get('firstName')} ${this.get('lastName')}`;
@@ -123,7 +129,7 @@ fullName: function() {
 
 
 // Instead, do this:
-fullName: Ember.computed('firstName', 'lastName', function() {
+fullName: computed('firstName', 'lastName', function() {
   return `${this.get('firstName')} ${this.get('lastName')}`;
 })
 ```
@@ -131,6 +137,8 @@ fullName: Ember.computed('firstName', 'lastName', function() {
 Observers are annotated using `Ember.observer()`:
 
 ```javascript
+import { observer } from "@ember/object"
+
 // This won't work:
 fullNameDidChange: function() {
   console.log('Full name changed');
@@ -138,7 +146,7 @@ fullNameDidChange: function() {
 
 
 // Instead, do this:
-fullNameDidChange: Ember.observer('fullName', function() {
+fullNameDidChange: observer('fullName', function() {
   console.log('Full name changed');
 })
 ```
@@ -146,13 +154,15 @@ fullNameDidChange: Ember.observer('fullName', function() {
 Evented functions are annotated using `Ember.on()`:
 
 ```javascript
+import { on } from "@ember/object/evented"
+
 // This won't work:
 doStuffWhenInserted: function() {
   /* awesome sauce */
 }.on('didInsertElement');
 
 // Instead, do this:
-doStuffWhenInserted: Ember.on('didInsertElement', function() {
+doStuffWhenInserted: on('didInsertElement', function() {
   /* awesome sauce */
 });
 ```

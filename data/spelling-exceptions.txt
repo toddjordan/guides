@@ -12,6 +12,7 @@ apache
 api
 apis
 app's
+ApplicationInstance
 assistive
 async
 asynchronicity
@@ -236,6 +237,7 @@ sidenote
 singularize
 spellcheck
 sql
+stacktrace
 stacktraces
 stateful
 stylesheets

@@ -28,7 +28,7 @@ and [working with records](../creating-updating-and-deleting-records) of that ty
 ## Defining Attributes
 
 The `person` model we generated earlier didn't have any attributes. Let's
-add first and last name, as well as the birthday, using [`DS.attr`](http://emberjs.com/api/data/classes/DS.html#method_attr):
+add first and last name, as well as the birthday, using [`DS.attr`](https://www.emberjs.com/api/ember-data/2.16/classes/DS/methods/attr?anchor=attr):
 
 ```app/models/person.js
 import DS from 'ember-data';
@@ -50,12 +50,13 @@ properties that combine or transform primitive attributes.
 
 ```app/models/person.js
 import DS from 'ember-data';
+import { computed } from '@ember/object';
 
 export default DS.Model.extend({
   firstName: DS.attr(),
   lastName: DS.attr(),
 
-  fullName: Ember.computed('firstName', 'lastName', function() {
+  fullName: computed('firstName', 'lastName', function() {
     return `${this.get('firstName')} ${this.get('lastName')}`;
   })
 });

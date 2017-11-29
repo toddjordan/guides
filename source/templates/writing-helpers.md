@@ -37,12 +37,10 @@ You can also have Ember generate the file for you from the command line:
 ember generate helper format-currency
 ```
 
-That file should export a function wrapped with [`Ember.Helper.helper()`][1]:
-
-[1]: http://emberjs.com/api/classes/Ember.Helper.html#method_helper
+That file should export a function wrapped with [`Ember.Helper.helper()`](http://emberjs.com/api/classes/Ember.Helper.html#method_helper):
 
 ```app/helpers/format-currency.js
-import Ember from 'ember';
+import { helper } from "@ember/component/helper"
 
 export function formatCurrency([value, ...rest]) {
   let dollars = Math.floor(value / 100);
@@ -53,7 +51,7 @@ export function formatCurrency([value, ...rest]) {
   return `${sign}${dollars}.${cents}`;
 }
 
-export default Ember.Helper.helper(formatCurrency);
+export default helper(formatCurrency);
 ```
 
 In this example, the function receives a dollar amount in cents as the first
@@ -81,7 +79,7 @@ helper again with the new values and keep the page up-to-date.
 
 ### Helper Names
 
-Unlike [components](/components/defining-a-component/), which require a dash in the name to follow the Custom Element spec, helper names can be single or multi-word. If your helper's name is multi-word, it should be dasherized as the examples on this page.
+Unlike [components](../../components/defining-a-component/), which require a dash in the name to follow the Custom Element spec, helper names can be single or multi-word. If your helper's name is multi-word, it should be dasherized as the examples on this page.
 
 ### Helper Arguments
 
@@ -99,26 +97,30 @@ list after the helper name:
 An array of these arguments is passed to the helper function:
 
 ```app/helpers/my-helper.js
-import Ember from 'ember';
+import { helper } from "@ember/component/helper"
 
-export default Ember.Helper.helper(function(params) {
+export function myHelper(params) {
   let [arg1, arg2] = params;
 
   console.log(arg1); // => "hello"
   console.log(arg2); // => "world"
 });
+
+export default helper(myHelper);
 ```
 
 You can use JavaScript's destructuring assignment shorthand to clean up
 the code. This example is equivalent to the above example (note the function signature):
 
 ```app/helpers/my-helper.js
-import Ember from 'ember';
+import { helper } from "@ember/component/helper"
 
-export default Ember.Helper.helper(function([arg1, arg2]) {
+export function myHelper([arg1, arg2]) {
   console.log(arg1); // => "hello"
   console.log(arg2); // => "world"
 });
+
+export default helper(myHelper);
 ```
 
 ### Named Arguments
@@ -157,9 +159,9 @@ to the helper function.  Here is our example from above, updated to
 support the optional `sign` option:
 
 ```app/helpers/format-currency.js
-import Ember from 'ember';
+export default helper(myHelper)
 
-export default Ember.Helper.helper(function([value, ...rest], namedArgs) {
+export function formatCurrency([value, ...rest], namedArgs) {
   let dollars = Math.floor(value / 100);
   let cents = value % 100;
   let sign = namedArgs.sign === undefined ? '$' : namedArgs.sign;
@@ -167,6 +169,8 @@ export default Ember.Helper.helper(function([value, ...rest], namedArgs) {
   if (cents.toString().length === 1) { cents = '0' + cents; }
   return `${sign}${dollars}.${cents}`;
 });
+
+export default helper(formatCurrency);
 ```
 
 You can pass as many named arguments as you'd like. They get added to the
@@ -177,26 +181,30 @@ You can pass as many named arguments as you'd like. They get added to the
 ```
 
 ```app/helpers/my-helper.js
-import Ember from 'ember';
+export default helper(myHelper)
 
-export default Ember.Helper.helper(function(params, namedArgs) {
+export function myHelper(params, namedArgs) {
   console.log(namedArgs.option1); // => "hello"
   console.log(namedArgs.option2); // => "world"
   console.log(namedArgs.option3); // => "goodbye cruel world"
 });
+
+export default helper(myHelper)
 ```
 
 You can use JavaScript's destructuring assignment shorthand in this case
 as well to clean up the above code:
 
 ```app/helpers/my-helper.js
-import Ember from 'ember';
+export default helper(myHelper)
 
-export default Ember.Helper.helper(function(params, { option1, option2, option3 }) {
+export function myHelper(params, { option1, option2, option3 }) {
   console.log(option1); // => "hello"
   console.log(option2); // => "world"
   console.log(option3); // => "goodbye cruel world"
 });
+
+export default helper(myHelper);
 ```
 
 In sum, arguments are good for passing values:
@@ -251,9 +259,9 @@ As an exercise, here is the above `format-currency` helper re-factored
 into a class-based helper:
 
 ```app/helpers/format-currency.js
-import Ember from 'ember';
+import Helper from "@ember/component/helper";
 
-export default Ember.Helper.extend({
+export default Helper.extend({
   compute([value, ...rest], hash) {
     let dollars = Math.floor(value / 100);
     let cents = value % 100;
@@ -273,10 +281,12 @@ As another example, let's make a helper utilizing an authentication
 service that welcomes users by their name if they're logged in:
 
 ```app/helpers/is-authenticated.js
-import Ember from 'ember';
+import Helper from "@ember/component/helper";
+import { inject as service } from "@ember/service";
 
-export default Ember.Helper.extend({
-  authentication: Ember.inject.service(),
+export default Helper.extend({
+  authentication: service(),
+
   compute() {
     let authentication = this.get('authentication');
 
@@ -298,11 +308,13 @@ the browser will not interpret it as HTML.
 For example, here's a `make-bold` helper that returns a string containing HTML:
 
 ```app/helpers/make-bold.js
-import Ember from 'ember';
+import { helper } from "@ember/component/helper";
 
-export default Ember.Helper.helper(function([param, ...rest]) {
+export function makeBold([param, ...rest]) {
   return `<b>${param}</b>`;
 });
+
+export default helper(makeBold);
 ```
 
 You can invoke it like this:
@@ -323,11 +335,14 @@ escape the return value (that is, that it is _safe_) by using the
 [`htmlSafe`][4] string utility:
 
 ```app/helpers/make-bold.js
-import Ember from 'ember';
+import { helper } from "@ember/component/helper";
+import { htmlSafe } from '@ember/string';
 
-export default Ember.Helper.helper(function([param, ...rest]) {
-  return Ember.String.htmlSafe(`<b>${param}</b>`);
+export function makeBold([param, ...rest]) {
+  return htmlSafe(`<b>${param}</b>`);
 });
+
+export default helper(makeBold);
 ```
 
 If you return a `SafeString` (a string that has been wrapped in a call
@@ -358,12 +373,16 @@ escape anything that may have come from an untrusted user with the
 `escapeExpression` utility:
 
 ```app/helpers/make-bold.js
-import Ember from 'ember';
+import Ember from "ember";
+import { helper } from "@ember/component/helper";
+import { htmlSafe } from "@ember/string";
 
-export default Ember.Helper.helper(function([param, ...rest]) {
+export function makeBold([param, ...rest]) {
   let value = Ember.Handlebars.Utils.escapeExpression(param);
-  return Ember.String.htmlSafe(`<b>${value}</b>`);
+  return htmlSafe(`<b>${value}</b>`);
 });
+
+export default helper(makeBold);
 ```
 
 Now the value passed into the helper has its HTML escaped, but the trusted
@@ -375,7 +394,7 @@ would see this:
 Welcome back! <b>&lt;script
 type="javascript"&gt;alert('pwned!');&lt;/script&gt;</b> has joined the channel.
 ```
-[1]: http://emberjs.com/api/classes/Ember.Helper.html
-[2]: http://emberjs.com/api/classes/Ember.Helper.html#method_compute
+[1]: https://www.emberjs.com/api/ember/2.16/classes/Helper
+[2]: https://www.emberjs.com/api/ember/2.16/classes/Helper/methods/compute?anchor=compute
 [3]: http://emberjs.com/api/classes/Ember.Helper.html#method_helper
-[4]: http://emberjs.com/api/classes/Ember.String.html#method_htmlSafe
+[4]: https://www.emberjs.com/api/ember/2.16/classes/@ember%2Fstring/methods/htmlSafe?anchor=htmlSafe
