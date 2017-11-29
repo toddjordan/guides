@@ -60,9 +60,13 @@ the same domain as before.
 
 ```shell
 rm -rf dist
+GOOGLE_MAPS_API_KEY=<your key> ember build --environment=development
 mv dist/index.html dist/200.html
 surge dist funny-name.surge.sh
 ```
+
+Note we are building with the google maps api key as shown above for UNIX platforms.
+For windows you will need to set the variable according the example in the previous section.
 
 ## Servers
 
